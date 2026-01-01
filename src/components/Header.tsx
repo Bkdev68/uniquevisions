@@ -1,18 +1,20 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X } from "lucide-react";
+import { Menu, X, Globe } from "lucide-react";
 import { Button } from "@/components/ui/button";
-
-const navLinks = [
-  { href: "#portfolio", label: "Portfolio" },
-  { href: "#dienstleistungen", label: "Dienstleistungen" },
-  { href: "#ueber-mich", label: "Über mich" },
-  { href: "#kontakt", label: "Jetzt buchen" },
-];
+import { useLanguage } from "@/hooks/useLanguage";
 
 export const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { language, setLanguage, t } = useLanguage();
+
+  const navLinks = [
+    { href: "#portfolio", label: "Portfolio" },
+    { href: "#dienstleistungen", label: t("Dienstleistungen", "Services") },
+    { href: "#ueber-mich", label: t("Über mich", "About") },
+    { href: "#kontakt", label: t("Jetzt buchen", "Book Now") },
+  ];
 
   useEffect(() => {
     const handleScroll = () => {
@@ -28,6 +30,10 @@ export const Header = () => {
       element.scrollIntoView({ behavior: "smooth" });
     }
     setIsMobileMenuOpen(false);
+  };
+
+  const toggleLanguage = () => {
+    setLanguage(language === "de" ? "en" : "de");
   };
 
   return (
@@ -52,7 +58,7 @@ export const Header = () => {
           </a>
 
           {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center gap-8">
+          <nav className="hidden md:flex items-center gap-6">
             {navLinks.map((link) => (
               <button
                 key={link.href}
@@ -66,17 +72,36 @@ export const Header = () => {
                 {link.label}
               </button>
             ))}
+            
+            {/* Language Switcher */}
+            <button
+              onClick={toggleLanguage}
+              className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors ml-2"
+              aria-label="Switch language"
+            >
+              <Globe className="w-4 h-4" />
+              <span className="uppercase font-medium">{language}</span>
+            </button>
           </nav>
 
           {/* Mobile Menu Button */}
-          <Button
-            variant="ghost"
-            size="icon"
-            className="md:hidden"
-            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-          >
-            {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
-          </Button>
+          <div className="flex items-center gap-4 md:hidden">
+            <button
+              onClick={toggleLanguage}
+              className="flex items-center gap-1 text-sm text-muted-foreground"
+              aria-label="Switch language"
+            >
+              <Globe className="w-4 h-4" />
+              <span className="uppercase">{language}</span>
+            </button>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            >
+              {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+            </Button>
+          </div>
         </div>
       </div>
 
