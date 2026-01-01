@@ -11,6 +11,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { ImageUploader } from "./ImageUploader";
 import type { Project, GalleryImage } from "@/hooks/useContent";
 
 interface EditableAlbumCardProps {
@@ -174,21 +175,16 @@ export const EditableAlbumCard: React.FC<EditableAlbumCardProps> = ({
             </div>
 
             <div>
-              <label className="text-sm font-medium">Cover-Bild URL</label>
-              <Input
-                value={localProject.image_url || ""}
-                onChange={(e) =>
-                  setLocalProject({ ...localProject, image_url: e.target.value })
+              <label className="text-sm font-medium mb-2 block">Cover-Bild</label>
+              <ImageUploader
+                currentUrl={localProject.image_url}
+                onImageChange={(url) =>
+                  setLocalProject({ ...localProject, image_url: url })
                 }
-                placeholder="https://..."
+                folder="covers"
+                aspectRatio="16/9"
+                placeholder="Cover-Bild hochladen"
               />
-              {localProject.image_url && (
-                <img
-                  src={localProject.image_url}
-                  alt="Cover"
-                  className="mt-2 h-24 w-auto object-cover rounded"
-                />
-              )}
             </div>
 
             {/* Gallery Images */}
