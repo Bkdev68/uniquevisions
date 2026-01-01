@@ -9,7 +9,7 @@ export const Footer = () => {
           <div className="text-center md:text-left">
             <a
               href="/"
-              className="text-xl font-logo font-semibold tracking-widest text-foreground"
+              className="text-xl font-logo font-semibold tracking-tight text-foreground"
             >
               UNIQUEVISIONS
             </a>
