@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X, Globe } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/hooks/useLanguage";
-
+import { ThemeToggle } from "@/components/ThemeToggle";
 export const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -82,6 +82,9 @@ export const Header = () => {
               <Globe className="w-4 h-4" />
               <span className="uppercase font-medium">{language}</span>
             </button>
+            
+            {/* Theme Toggle */}
+            <ThemeToggle />
           </nav>
 
           {/* Mobile Menu Button */}
