@@ -82,22 +82,84 @@ export const Contact = () => {
             to: formData.email.trim(),
             subject: t("Vielen Dank für Ihre Anfrage - UNIQUEVISIONS", "Thank you for your inquiry - UNIQUEVISIONS"),
             html: `
-              <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-                <h1 style="color: #1a1a1a;">${t("Vielen Dank für Ihre Anfrage!", "Thank you for your inquiry!")}</h1>
-                <p>${t(`Hallo ${formData.firstName.trim()},`, `Hello ${formData.firstName.trim()},`)}</p>
-                <p>${t(
-                  "wir haben Ihre Nachricht erhalten und werden uns schnellstmöglich bei Ihnen melden.",
-                  "we have received your message and will get back to you as soon as possible."
-                )}</p>
-                <p>${t("Ihre Anfrage:", "Your request:")}</p>
-                <div style="background: #f5f5f5; padding: 15px; border-radius: 8px; margin: 15px 0;">
-                  <p style="margin: 5px 0;"><strong>${t("Name:", "Name:")}</strong> ${formData.firstName.trim()} ${formData.lastName.trim()}</p>
-                  ${formData.package ? `<p style="margin: 5px 0;"><strong>${t("Paket:", "Package:")}</strong> ${formData.package}</p>` : ""}
-                  <p style="margin: 5px 0;"><strong>${t("Nachricht:", "Message:")}</strong></p>
-                  <p style="margin: 5px 0;">${formData.message.trim().replace(/\n/g, "<br>")}</p>
-                </div>
-                <p>${t("Mit besten Grüßen,", "Best regards,")}<br><strong>UNIQUEVISIONS</strong></p>
-              </div>
+              <!DOCTYPE html>
+              <html>
+              <head>
+                <meta charset="utf-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+              </head>
+              <body style="margin: 0; padding: 0; background-color: #0a0a0a; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
+                <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color: #0a0a0a; padding: 40px 20px;">
+                  <tr>
+                    <td align="center">
+                      <table role="presentation" width="600" cellspacing="0" cellpadding="0" style="max-width: 600px; background: linear-gradient(145deg, #1a1a1a 0%, #0d0d0d 100%); border-radius: 16px; overflow: hidden; border: 1px solid #2a2a2a;">
+                        <!-- Header -->
+                        <tr>
+                          <td style="padding: 40px 40px 30px; text-align: center; border-bottom: 1px solid rgba(184, 134, 11, 0.3);">
+                            <h1 style="margin: 0; font-size: 28px; font-weight: 300; letter-spacing: 6px; color: #b8860b; text-transform: uppercase;">UNIQUEVISIONS</h1>
+                          </td>
+                        </tr>
+                        <!-- Main Content -->
+                        <tr>
+                          <td style="padding: 40px;">
+                            <h2 style="margin: 0 0 24px; font-size: 24px; font-weight: 400; color: #ffffff; text-align: center;">
+                              ${t("Vielen Dank für Ihre Anfrage", "Thank you for your inquiry")}
+                            </h2>
+                            <p style="margin: 0 0 20px; font-size: 16px; line-height: 1.7; color: #a0a0a0;">
+                              ${t(`Hallo ${formData.firstName.trim()},`, `Hello ${formData.firstName.trim()},`)}
+                            </p>
+                            <p style="margin: 0 0 30px; font-size: 16px; line-height: 1.7; color: #a0a0a0;">
+                              ${t(
+                                "wir haben Ihre Nachricht erhalten und freuen uns über Ihr Interesse. Wir werden uns schnellstmöglich bei Ihnen melden, um Ihr Projekt zu besprechen.",
+                                "we have received your message and appreciate your interest. We will get back to you as soon as possible to discuss your project."
+                              )}
+                            </p>
+                            <!-- Request Summary Box -->
+                            <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background: rgba(184, 134, 11, 0.08); border: 1px solid rgba(184, 134, 11, 0.2); border-radius: 12px; margin-bottom: 30px;">
+                              <tr>
+                                <td style="padding: 24px;">
+                                  <p style="margin: 0 0 16px; font-size: 14px; font-weight: 600; color: #b8860b; text-transform: uppercase; letter-spacing: 2px;">
+                                    ${t("Ihre Anfrage", "Your Request")}
+                                  </p>
+                                  <p style="margin: 0 0 8px; font-size: 15px; color: #ffffff;">
+                                    <span style="color: #707070;">${t("Name:", "Name:")}</span> ${formData.firstName.trim()} ${formData.lastName.trim()}
+                                  </p>
+                                  ${formData.package ? `
+                                  <p style="margin: 0 0 8px; font-size: 15px; color: #ffffff;">
+                                    <span style="color: #707070;">${t("Paket:", "Package:")}</span> ${formData.package.charAt(0).toUpperCase() + formData.package.slice(1)}
+                                  </p>
+                                  ` : ""}
+                                  <p style="margin: 16px 0 8px; font-size: 15px; color: #707070;">
+                                    ${t("Nachricht:", "Message:")}
+                                  </p>
+                                  <p style="margin: 0; font-size: 15px; line-height: 1.6; color: #d0d0d0; font-style: italic;">
+                                    "${formData.message.trim().replace(/\n/g, "<br>")}"
+                                  </p>
+                                </td>
+                              </tr>
+                            </table>
+                            <p style="margin: 0; font-size: 16px; line-height: 1.7; color: #a0a0a0;">
+                              ${t("Mit besten Grüßen,", "Best regards,")}
+                            </p>
+                            <p style="margin: 8px 0 0; font-size: 18px; font-weight: 500; color: #b8860b;">
+                              UNIQUEVISIONS
+                            </p>
+                          </td>
+                        </tr>
+                        <!-- Footer -->
+                        <tr>
+                          <td style="padding: 24px 40px; background: rgba(0,0,0,0.3); border-top: 1px solid #2a2a2a; text-align: center;">
+                            <p style="margin: 0; font-size: 12px; color: #606060;">
+                              © ${new Date().getFullYear()} UNIQUEVISIONS. ${t("Alle Rechte vorbehalten.", "All rights reserved.")}
+                            </p>
+                          </td>
+                        </tr>
+                      </table>
+                    </td>
+                  </tr>
+                </table>
+              </body>
+              </html>
             `,
             text: t(
               `Vielen Dank für Ihre Anfrage!\n\nHallo ${formData.firstName.trim()},\n\nwir haben Ihre Nachricht erhalten und werden uns schnellstmöglich bei Ihnen melden.\n\nMit besten Grüßen,\nUNIQUEVISIONS`,
@@ -117,17 +179,87 @@ export const Contact = () => {
             to: notificationEmail,
             subject: `Neue Kontaktanfrage von ${formData.firstName.trim()} ${formData.lastName.trim()}`,
             html: `
-              <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-                <h1 style="color: #1a1a1a;">Neue Kontaktanfrage</h1>
-                <div style="background: #f5f5f5; padding: 15px; border-radius: 8px; margin: 15px 0;">
-                  <p style="margin: 5px 0;"><strong>Name:</strong> ${formData.firstName.trim()} ${formData.lastName.trim()}</p>
-                  <p style="margin: 5px 0;"><strong>E-Mail:</strong> ${formData.email.trim()}</p>
-                  ${formData.package ? `<p style="margin: 5px 0;"><strong>Paket:</strong> ${formData.package}</p>` : ""}
-                  <p style="margin: 5px 0;"><strong>Nachricht:</strong></p>
-                  <p style="margin: 5px 0;">${formData.message.trim().replace(/\n/g, "<br>")}</p>
-                </div>
-                <p><a href="${window.location.origin}/admin/contacts" style="color: #b8860b;">Im Admin-Bereich ansehen</a></p>
-              </div>
+              <!DOCTYPE html>
+              <html>
+              <head>
+                <meta charset="utf-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+              </head>
+              <body style="margin: 0; padding: 0; background-color: #0a0a0a; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
+                <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color: #0a0a0a; padding: 40px 20px;">
+                  <tr>
+                    <td align="center">
+                      <table role="presentation" width="600" cellspacing="0" cellpadding="0" style="max-width: 600px; background: linear-gradient(145deg, #1a1a1a 0%, #0d0d0d 100%); border-radius: 16px; overflow: hidden; border: 1px solid #2a2a2a;">
+                        <!-- Header -->
+                        <tr>
+                          <td style="padding: 40px 40px 30px; text-align: center; border-bottom: 1px solid rgba(184, 134, 11, 0.3);">
+                            <h1 style="margin: 0; font-size: 28px; font-weight: 300; letter-spacing: 6px; color: #b8860b; text-transform: uppercase;">UNIQUEVISIONS</h1>
+                            <p style="margin: 16px 0 0; font-size: 14px; color: #b8860b; text-transform: uppercase; letter-spacing: 3px;">Neue Kontaktanfrage</p>
+                          </td>
+                        </tr>
+                        <!-- Main Content -->
+                        <tr>
+                          <td style="padding: 40px;">
+                            <!-- Contact Details Box -->
+                            <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background: rgba(184, 134, 11, 0.08); border: 1px solid rgba(184, 134, 11, 0.2); border-radius: 12px; margin-bottom: 24px;">
+                              <tr>
+                                <td style="padding: 24px;">
+                                  <p style="margin: 0 0 16px; font-size: 14px; font-weight: 600; color: #b8860b; text-transform: uppercase; letter-spacing: 2px;">
+                                    Kontaktdaten
+                                  </p>
+                                  <p style="margin: 0 0 8px; font-size: 16px; color: #ffffff;">
+                                    <span style="color: #707070;">Name:</span> ${formData.firstName.trim()} ${formData.lastName.trim()}
+                                  </p>
+                                  <p style="margin: 0 0 8px; font-size: 16px; color: #ffffff;">
+                                    <span style="color: #707070;">E-Mail:</span> <a href="mailto:${formData.email.trim()}" style="color: #b8860b; text-decoration: none;">${formData.email.trim()}</a>
+                                  </p>
+                                  ${formData.package ? `
+                                  <p style="margin: 0; font-size: 16px; color: #ffffff;">
+                                    <span style="color: #707070;">Paket:</span> ${formData.package.charAt(0).toUpperCase() + formData.package.slice(1)}
+                                  </p>
+                                  ` : ""}
+                                </td>
+                              </tr>
+                            </table>
+                            <!-- Message Box -->
+                            <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background: rgba(255,255,255,0.03); border: 1px solid #2a2a2a; border-radius: 12px; margin-bottom: 30px;">
+                              <tr>
+                                <td style="padding: 24px;">
+                                  <p style="margin: 0 0 12px; font-size: 14px; font-weight: 600; color: #707070; text-transform: uppercase; letter-spacing: 2px;">
+                                    Nachricht
+                                  </p>
+                                  <p style="margin: 0; font-size: 15px; line-height: 1.7; color: #d0d0d0;">
+                                    ${formData.message.trim().replace(/\n/g, "<br>")}
+                                  </p>
+                                </td>
+                              </tr>
+                            </table>
+                            <!-- CTA Button -->
+                            <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
+                              <tr>
+                                <td align="center">
+                                  <a href="${window.location.origin}/admin/contacts" style="display: inline-block; padding: 14px 32px; background: linear-gradient(135deg, #b8860b 0%, #8b6508 100%); color: #ffffff; text-decoration: none; font-size: 14px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; border-radius: 8px;">
+                                    Im Admin-Bereich ansehen
+                                  </a>
+                                </td>
+                              </tr>
+                            </table>
+                          </td>
+                        </tr>
+                        <!-- Footer -->
+                        <tr>
+                          <td style="padding: 24px 40px; background: rgba(0,0,0,0.3); border-top: 1px solid #2a2a2a; text-align: center;">
+                            <p style="margin: 0; font-size: 12px; color: #606060;">
+                              Diese E-Mail wurde automatisch generiert. © ${new Date().getFullYear()} UNIQUEVISIONS
+                            </p>
+                          </td>
+                        </tr>
+                      </table>
+                    </td>
+                  </tr>
+                </table>
+              </body>
+              </html>
             `,
             text: `Neue Kontaktanfrage\n\nName: ${formData.firstName.trim()} ${formData.lastName.trim()}\nE-Mail: ${formData.email.trim()}\n${formData.package ? `Paket: ${formData.package}\n` : ""}Nachricht:\n${formData.message.trim()}`,
           },
