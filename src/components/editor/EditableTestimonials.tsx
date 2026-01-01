@@ -1,8 +1,25 @@
 import React from "react";
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  rectSortingStrategy,
+} from "@dnd-kit/sortable";
 import { AnimatedSection } from "../AnimatedSection";
 import { EditableTestimonialCard } from "./EditableTestimonialCard";
 import { AddItemButton } from "./AddItemButton";
 import { EditableText } from "./EditableText";
+import { SortableItem } from "./SortableItem";
+import { useEditContext } from "@/contexts/EditContext";
 import type { Testimonial } from "@/hooks/useContent";
 
 interface EditableTestimonialsProps {
@@ -12,6 +29,7 @@ interface EditableTestimonialsProps {
   onTestimonialUpdate: (testimonial: Testimonial) => void;
   onTestimonialDelete: (id: string) => void;
   onTestimonialAdd: () => void;
+  onTestimonialsReorder: (testimonials: Testimonial[]) => void;
 }
 
 export const EditableTestimonials: React.FC<EditableTestimonialsProps> = ({
@@ -21,9 +39,37 @@ export const EditableTestimonials: React.FC<EditableTestimonialsProps> = ({
   onTestimonialUpdate,
   onTestimonialDelete,
   onTestimonialAdd,
+  onTestimonialsReorder,
 }) => {
+  const { isEditMode } = useEditContext();
+  
   const title = content?.testimonials?.title?.de || "Kundenstimmen und Erfahrungsberichte";
   const subtitle = content?.testimonials?.subtitle?.de || "Das sagen unsere Kunden über die Zusammenarbeit.";
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8,
+      },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+
+    if (over && active.id !== over.id) {
+      const oldIndex = testimonials.findIndex((t) => t.id === active.id);
+      const newIndex = testimonials.findIndex((t) => t.id === over.id);
+      const reordered = arrayMove(testimonials, oldIndex, newIndex).map((t, i) => ({
+        ...t,
+        display_order: i,
+      }));
+      onTestimonialsReorder(reordered);
+    }
+  };
 
   return (
     <section className="py-24 md:py-32 bg-background">
@@ -45,21 +91,44 @@ export const EditableTestimonials: React.FC<EditableTestimonialsProps> = ({
           </div>
         </AnimatedSection>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-6xl mx-auto">
-          {testimonials.map((testimonial, index) => (
-            <AnimatedSection key={testimonial.id} delay={index * 0.1}>
-              <EditableTestimonialCard
-                testimonial={testimonial}
-                onUpdate={onTestimonialUpdate}
-                onDelete={onTestimonialDelete}
-              />
-            </AnimatedSection>
-          ))}
+        {isEditMode ? (
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragEnd={handleDragEnd}
+          >
+            <SortableContext
+              items={testimonials.map((t) => t.id)}
+              strategy={rectSortingStrategy}
+            >
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-6xl mx-auto">
+                {testimonials.map((testimonial) => (
+                  <SortableItem key={testimonial.id} id={testimonial.id}>
+                    <EditableTestimonialCard
+                      testimonial={testimonial}
+                      onUpdate={onTestimonialUpdate}
+                      onDelete={onTestimonialDelete}
+                    />
+                  </SortableItem>
+                ))}
 
-          <AnimatedSection delay={testimonials.length * 0.1}>
-            <AddItemButton onClick={onTestimonialAdd} label="Neues Testimonial" className="h-full" />
-          </AnimatedSection>
-        </div>
+                <AddItemButton onClick={onTestimonialAdd} label="Neues Testimonial" className="h-full" />
+              </div>
+            </SortableContext>
+          </DndContext>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-6xl mx-auto">
+            {testimonials.map((testimonial, index) => (
+              <AnimatedSection key={testimonial.id} delay={index * 0.1}>
+                <EditableTestimonialCard
+                  testimonial={testimonial}
+                  onUpdate={onTestimonialUpdate}
+                  onDelete={onTestimonialDelete}
+                />
+              </AnimatedSection>
+            ))}
+          </div>
+        )}
       </div>
     </section>
   );

@@ -1,10 +1,25 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useProjects, useTestimonials, useSiteContent } from "@/hooks/useContent";
 import type { Project, Testimonial } from "@/hooks/useContent";
 import { LanguageProvider } from "@/hooks/useLanguage";
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
 
 import { EditProvider, useEditContext } from "@/contexts/EditContext";
 import { EditorToolbar } from "@/components/editor/EditorToolbar";
@@ -14,6 +29,7 @@ import { EditablePortfolio } from "@/components/editor/EditablePortfolio";
 import { EditableServices } from "@/components/editor/EditableServices";
 import { EditableTestimonials } from "@/components/editor/EditableTestimonials";
 import { EditableFooter } from "@/components/editor/EditableFooter";
+import { SortableSection } from "@/components/editor/SortableSection";
 import { Contact } from "@/components/Contact";
 import { Loader2 } from "lucide-react";
 
@@ -63,6 +79,39 @@ const VisualEditorContent: React.FC = () => {
   const [services, setServices] = useState(defaultServices);
   const [packages, setPackages] = useState(defaultPackages);
   const [hasChanges, setHasChanges] = useState(false);
+  const [sectionOrder, setSectionOrder] = useState<string[]>([
+    "hero",
+    "about",
+    "portfolio",
+    "services",
+    "testimonials",
+    "contact",
+    "footer",
+  ]);
+
+  // DnD sensors for sections
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 10,
+      },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+
+  const handleSectionDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (over && active.id !== over.id) {
+      setSectionOrder((prev) => {
+        const oldIndex = prev.indexOf(active.id as string);
+        const newIndex = prev.indexOf(over.id as string);
+        return arrayMove(prev, oldIndex, newIndex);
+      });
+      markChanged();
+    }
+  };
 
   // Sync fetched data to local state
   useEffect(() => {
@@ -284,44 +333,95 @@ const VisualEditorContent: React.FC = () => {
       </header>
 
       <main className="pt-16">
-        <EditableHero
-          content={localContent}
-          onContentChange={handleContentChange}
-          serviceCategories={serviceCategories}
-          onServiceCategoriesChange={(cats) => { setServiceCategories(cats); markChanged(); }}
-        />
-        <EditableAbout
-          content={localContent}
-          onContentChange={handleContentChange}
-          features={features}
-          onFeaturesChange={(f) => { setFeatures(f); markChanged(); }}
-        />
-        <EditablePortfolio
-          content={localContent}
-          onContentChange={handleContentChange}
-          projects={localProjects}
-          onProjectUpdate={handleProjectUpdate}
-          onProjectDelete={handleProjectDelete}
-          onProjectAdd={handleProjectAdd}
-        />
-        <EditableServices
-          content={localContent}
-          onContentChange={handleContentChange}
-          services={services}
-          onServicesChange={(s) => { setServices(s); markChanged(); }}
-          packages={packages}
-          onPackagesChange={(p) => { setPackages(p); markChanged(); }}
-        />
-        <EditableTestimonials
-          content={localContent}
-          onContentChange={handleContentChange}
-          testimonials={localTestimonials}
-          onTestimonialUpdate={handleTestimonialUpdate}
-          onTestimonialDelete={handleTestimonialDelete}
-          onTestimonialAdd={handleTestimonialAdd}
-        />
-        <Contact />
-        <EditableFooter content={localContent} onContentChange={handleContentChange} />
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCenter}
+          onDragEnd={handleSectionDragEnd}
+        >
+          <SortableContext items={sectionOrder} strategy={verticalListSortingStrategy}>
+            {sectionOrder.map((sectionId) => {
+              switch (sectionId) {
+                case "hero":
+                  return (
+                    <SortableSection key="hero" id="hero" name="Hero">
+                      <EditableHero
+                        content={localContent}
+                        onContentChange={handleContentChange}
+                        serviceCategories={serviceCategories}
+                        onServiceCategoriesChange={(cats) => { setServiceCategories(cats); markChanged(); }}
+                      />
+                    </SortableSection>
+                  );
+                case "about":
+                  return (
+                    <SortableSection key="about" id="about" name="Über mich">
+                      <EditableAbout
+                        content={localContent}
+                        onContentChange={handleContentChange}
+                        features={features}
+                        onFeaturesChange={(f) => { setFeatures(f); markChanged(); }}
+                      />
+                    </SortableSection>
+                  );
+                case "portfolio":
+                  return (
+                    <SortableSection key="portfolio" id="portfolio" name="Portfolio">
+                      <EditablePortfolio
+                        content={localContent}
+                        onContentChange={handleContentChange}
+                        projects={localProjects}
+                        onProjectUpdate={handleProjectUpdate}
+                        onProjectDelete={handleProjectDelete}
+                        onProjectAdd={handleProjectAdd}
+                        onProjectsReorder={(reordered) => { setLocalProjects(reordered); markChanged(); }}
+                      />
+                    </SortableSection>
+                  );
+                case "services":
+                  return (
+                    <SortableSection key="services" id="services" name="Dienstleistungen">
+                      <EditableServices
+                        content={localContent}
+                        onContentChange={handleContentChange}
+                        services={services}
+                        onServicesChange={(s) => { setServices(s); markChanged(); }}
+                        packages={packages}
+                        onPackagesChange={(p) => { setPackages(p); markChanged(); }}
+                      />
+                    </SortableSection>
+                  );
+                case "testimonials":
+                  return (
+                    <SortableSection key="testimonials" id="testimonials" name="Testimonials">
+                      <EditableTestimonials
+                        content={localContent}
+                        onContentChange={handleContentChange}
+                        testimonials={localTestimonials}
+                        onTestimonialUpdate={handleTestimonialUpdate}
+                        onTestimonialDelete={handleTestimonialDelete}
+                        onTestimonialAdd={handleTestimonialAdd}
+                        onTestimonialsReorder={(reordered) => { setLocalTestimonials(reordered); markChanged(); }}
+                      />
+                    </SortableSection>
+                  );
+                case "contact":
+                  return (
+                    <SortableSection key="contact" id="contact" name="Kontakt">
+                      <Contact />
+                    </SortableSection>
+                  );
+                case "footer":
+                  return (
+                    <SortableSection key="footer" id="footer" name="Footer">
+                      <EditableFooter content={localContent} onContentChange={handleContentChange} />
+                    </SortableSection>
+                  );
+                default:
+                  return null;
+              }
+            })}
+          </SortableContext>
+        </DndContext>
       </main>
 
       <EditorToolbar
