@@ -1,5 +1,4 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
-import { SmtpClient } from "https://deno.land/x/smtp@v0.7.0/mod.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -11,6 +10,121 @@ interface EmailRequest {
   subject: string;
   html: string;
   text?: string;
+}
+
+// Simple SMTP client using Deno's TCP connection
+async function sendEmail(
+  host: string,
+  port: number,
+  username: string,
+  password: string,
+  from: string,
+  to: string,
+  subject: string,
+  html: string,
+  text?: string
+): Promise<void> {
+  const encoder = new TextEncoder();
+  const decoder = new TextDecoder();
+
+  // For port 465 (implicit TLS), we need to start with TLS
+  const conn = await Deno.connectTls({
+    hostname: host,
+    port: port,
+  });
+
+  const read = async (): Promise<string> => {
+    const buffer = new Uint8Array(1024);
+    const n = await conn.read(buffer);
+    if (n === null) throw new Error("Connection closed");
+    return decoder.decode(buffer.subarray(0, n));
+  };
+
+  const write = async (data: string): Promise<void> => {
+    await conn.write(encoder.encode(data + "\r\n"));
+  };
+
+  try {
+    // Read greeting
+    let response = await read();
+    console.log("Greeting:", response);
+
+    // EHLO
+    await write(`EHLO localhost`);
+    response = await read();
+    console.log("EHLO response:", response);
+
+    // AUTH LOGIN
+    await write("AUTH LOGIN");
+    response = await read();
+    console.log("AUTH response:", response);
+
+    // Username (base64)
+    await write(btoa(username));
+    response = await read();
+    console.log("Username response:", response);
+
+    // Password (base64)
+    await write(btoa(password));
+    response = await read();
+    console.log("Password response:", response);
+    
+    if (!response.startsWith("235")) {
+      throw new Error("Authentication failed: " + response);
+    }
+
+    // MAIL FROM
+    await write(`MAIL FROM:<${from}>`);
+    response = await read();
+    console.log("MAIL FROM response:", response);
+
+    // RCPT TO
+    await write(`RCPT TO:<${to}>`);
+    response = await read();
+    console.log("RCPT TO response:", response);
+
+    // DATA
+    await write("DATA");
+    response = await read();
+    console.log("DATA response:", response);
+
+    // Build email with MIME multipart
+    const boundary = "----=_Part_" + Date.now();
+    const emailBody = [
+      `From: ${from}`,
+      `To: ${to}`,
+      `Subject: ${subject}`,
+      `MIME-Version: 1.0`,
+      `Content-Type: multipart/alternative; boundary="${boundary}"`,
+      "",
+      `--${boundary}`,
+      `Content-Type: text/plain; charset=utf-8`,
+      "",
+      text || "",
+      "",
+      `--${boundary}`,
+      `Content-Type: text/html; charset=utf-8`,
+      "",
+      html,
+      "",
+      `--${boundary}--`,
+      ".",
+    ].join("\r\n");
+
+    await write(emailBody);
+    response = await read();
+    console.log("Email sent response:", response);
+
+    if (!response.startsWith("250")) {
+      throw new Error("Failed to send email: " + response);
+    }
+
+    // QUIT
+    await write("QUIT");
+    
+  } finally {
+    conn.close();
+  }
 }
 
 const handler = async (req: Request): Promise<Response> => {
@@ -34,34 +148,17 @@ const handler = async (req: Request): Promise<Response> => {
       throw new Error("SMTP credentials not configured");
     }
 
-    const client = new SmtpClient();
-
-    // Connect using TLS (for port 465) or STARTTLS (for port 587)
-    if (smtpPort === 465) {
-      await client.connectTLS({
-        hostname: smtpHost,
-        port: smtpPort,
-        username: smtpUser,
-        password: smtpPassword,
-      });
-    } else {
-      await client.connect({
-        hostname: smtpHost,
-        port: smtpPort,
-        username: smtpUser,
-        password: smtpPassword,
-      });
-    }
-
-    await client.send({
-      from: fromEmail!,
-      to: to,
-      subject: subject,
-      content: text || "",
-      html: html,
-    });
-
-    await client.close();
+    await sendEmail(
+      smtpHost,
+      smtpPort,
+      smtpUser,
+      smtpPassword,
+      fromEmail!,
+      to,
+      subject,
+      html,
+      text
+    );
 
     console.log("Email sent successfully");
 
