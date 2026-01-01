@@ -116,6 +116,7 @@ const VisualEditorContent: React.FC = () => {
       video_url: null,
       language: "de",
       display_order: localProjects.length,
+      gallery: [],
     };
     setLocalProjects((prev) => [...prev, newProject]);
     markChanged();
@@ -164,6 +165,7 @@ const VisualEditorContent: React.FC = () => {
             video_url: project.video_url,
             language: project.language,
             display_order: project.display_order,
+            gallery: JSON.parse(JSON.stringify(project.gallery)),
             is_published: true,
           });
           if (error) throw error;
@@ -176,6 +178,7 @@ const VisualEditorContent: React.FC = () => {
             image_url: project.image_url,
             video_url: project.video_url,
             display_order: project.display_order,
+            gallery: JSON.parse(JSON.stringify(project.gallery)),
           }).eq("id", project.id);
           if (error) throw error;
         }

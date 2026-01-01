@@ -1,6 +1,11 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
+export interface GalleryImage {
+  url: string;
+  caption?: string;
+}
+
 export interface Project {
   id: string;
   title: string;
@@ -11,6 +16,7 @@ export interface Project {
   video_url: string | null;
   language: string;
   display_order: number | null;
+  gallery: GalleryImage[];
 }
 
 export const useProjects = (language: string = "de") => {
@@ -25,7 +31,12 @@ export const useProjects = (language: string = "de") => {
         .order("display_order", { ascending: true });
 
       if (error) throw error;
-      return data as Project[];
+      
+      // Transform gallery from Json to GalleryImage[]
+      return (data || []).map((item) => ({
+        ...item,
+        gallery: Array.isArray(item.gallery) ? (item.gallery as unknown as GalleryImage[]) : [],
+      })) as Project[];
     },
   });
 };
