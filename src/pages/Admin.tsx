@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { useNavigate, Outlet, Link, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
-import { Loader2, LogOut, FolderOpen, MessageSquare, FileText, Lightbulb, Mail, Eye } from "lucide-react";
+import { Loader2, LogOut, FolderOpen, MessageSquare, FileText, Lightbulb, Mail, Eye, Settings } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ThemeToggle } from "@/components/ThemeToggle";
 
@@ -13,6 +13,7 @@ const navItems = [
   { label: "Site-Inhalte", path: "/admin/content", icon: FileText },
   { label: "Insights", path: "/admin/insights", icon: Lightbulb },
   { label: "Kontaktanfragen", path: "/admin/contacts", icon: Mail },
+  { label: "Einstellungen", path: "/admin/settings", icon: Settings },
 ];
 
 const Admin = () => {

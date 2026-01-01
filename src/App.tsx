@@ -15,6 +15,7 @@ import ContentAdmin from "./pages/admin/ContentAdmin";
 import InsightsAdmin from "./pages/admin/InsightsAdmin";
 import ContactsAdmin from "./pages/admin/ContactsAdmin";
 import VisualEditor from "./pages/admin/VisualEditor";
+import SettingsAdmin from "./pages/admin/SettingsAdmin";
 
 const queryClient = new QueryClient();
 
@@ -37,6 +38,7 @@ const App = () => (
                 <Route path="insights" element={<InsightsAdmin />} />
                 <Route path="contacts" element={<ContactsAdmin />} />
                 <Route path="visual" element={<VisualEditor />} />
+                <Route path="settings" element={<SettingsAdmin />} />
               </Route>
               <Route path="*" element={<NotFound />} />
             </Routes>
