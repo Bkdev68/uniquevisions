@@ -16,6 +16,7 @@ export default {
       fontFamily: {
         sans: ['Inter', 'sans-serif'],
         display: ['Cormorant Garamond', 'Georgia', 'serif'],
+        logo: ['Jost', 'sans-serif'],
       },
       colors: {
         border: "hsl(var(--border))",

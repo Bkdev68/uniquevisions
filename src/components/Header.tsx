@@ -52,7 +52,7 @@ export const Header = () => {
           {/* Logo */}
           <a
             href="/"
-            className="text-xl md:text-2xl font-display font-bold tracking-wide text-foreground hover:text-primary transition-colors"
+            className="text-xl md:text-2xl font-logo font-semibold tracking-widest text-foreground hover:text-primary transition-colors"
           >
             UNIQUEVISIONS
           </a>
