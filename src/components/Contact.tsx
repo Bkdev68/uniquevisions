@@ -87,23 +87,23 @@ export const Contact = () => {
               <head>
                 <meta charset="utf-8">
                 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                <link href="https://fonts.googleapis.com/css2?family=Urbanist:wght@300;400;500;600&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+                <link href="https://fonts.googleapis.com/css2?family=Urbanist:wght@400;500;600;700&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
               </head>
-              <body style="margin: 0; padding: 0; background-color: #0a0a0a; font-family: 'Jost', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
+              <body style="margin: 0; padding: 0; background-color: #0a0a0a; font-family: 'Jost', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;">
                 <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color: #0a0a0a; padding: 40px 20px;">
                   <tr>
                     <td align="center">
                       <table role="presentation" width="600" cellspacing="0" cellpadding="0" style="max-width: 600px; background: linear-gradient(145deg, #1a1a1a 0%, #0d0d0d 100%); border-radius: 16px; overflow: hidden; border: 1px solid #2a2a2a;">
-                        <!-- Header -->
+                        <!-- Header with Logo -->
                         <tr>
-                          <td style="padding: 40px 40px 30px; text-align: center; border-bottom: 1px solid rgba(184, 134, 11, 0.3);">
-                            <h1 style="margin: 0; font-family: 'Urbanist', sans-serif; font-size: 28px; font-weight: 300; letter-spacing: 6px; color: #b8860b; text-transform: uppercase;">UNIQUEVISIONS</h1>
+                          <td style="padding: 40px 40px 30px; text-align: center; border-bottom: 1px solid rgba(201, 162, 39, 0.3);">
+                            <h1 style="margin: 0; font-family: 'Urbanist', sans-serif; font-size: 26px; font-weight: 600; letter-spacing: -0.025em; color: #c9a227;">UNIQUEVISIONS</h1>
                           </td>
                         </tr>
                         <!-- Main Content -->
                         <tr>
                           <td style="padding: 40px;">
-                            <h2 style="margin: 0 0 24px; font-family: 'Urbanist', sans-serif; font-size: 24px; font-weight: 400; color: #ffffff; text-align: center;">
+                            <h2 style="margin: 0 0 24px; font-family: 'Urbanist', sans-serif; font-size: 22px; font-weight: 600; letter-spacing: -0.025em; color: #ffffff; text-align: center;">
                               ${t("Vielen Dank für Ihre Anfrage", "Thank you for your inquiry")}
                             </h2>
                             <p style="margin: 0 0 20px; font-family: 'Jost', sans-serif; font-size: 16px; line-height: 1.7; color: #a0a0a0;">
@@ -116,10 +116,10 @@ export const Contact = () => {
                               )}
                             </p>
                             <!-- Request Summary Box -->
-                            <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background: rgba(184, 134, 11, 0.08); border: 1px solid rgba(184, 134, 11, 0.2); border-radius: 12px; margin-bottom: 30px;">
+                            <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background: rgba(201, 162, 39, 0.08); border: 1px solid rgba(201, 162, 39, 0.2); border-radius: 12px; margin-bottom: 30px;">
                               <tr>
                                 <td style="padding: 24px;">
-                                  <p style="margin: 0 0 16px; font-family: 'Urbanist', sans-serif; font-size: 14px; font-weight: 600; color: #b8860b; text-transform: uppercase; letter-spacing: 2px;">
+                                  <p style="margin: 0 0 16px; font-family: 'Urbanist', sans-serif; font-size: 13px; font-weight: 600; color: #c9a227; text-transform: uppercase; letter-spacing: 1.5px;">
                                     ${t("Ihre Anfrage", "Your Request")}
                                   </p>
                                   <p style="margin: 0 0 8px; font-family: 'Jost', sans-serif; font-size: 15px; color: #ffffff;">
@@ -142,7 +142,7 @@ export const Contact = () => {
                             <p style="margin: 0; font-family: 'Jost', sans-serif; font-size: 16px; line-height: 1.7; color: #a0a0a0;">
                               ${t("Mit besten Grüßen,", "Best regards,")}
                             </p>
-                            <p style="margin: 8px 0 0; font-family: 'Urbanist', sans-serif; font-size: 18px; font-weight: 500; color: #b8860b;">
+                            <p style="margin: 8px 0 0; font-family: 'Urbanist', sans-serif; font-size: 18px; font-weight: 600; letter-spacing: -0.025em; color: #c9a227;">
                               UNIQUEVISIONS
                             </p>
                           </td>
@@ -185,35 +185,35 @@ export const Contact = () => {
               <head>
                 <meta charset="utf-8">
                 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                <link href="https://fonts.googleapis.com/css2?family=Urbanist:wght@300;400;500;600&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+                <link href="https://fonts.googleapis.com/css2?family=Urbanist:wght@400;500;600;700&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
               </head>
-              <body style="margin: 0; padding: 0; background-color: #0a0a0a; font-family: 'Jost', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
+              <body style="margin: 0; padding: 0; background-color: #0a0a0a; font-family: 'Jost', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;">
                 <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color: #0a0a0a; padding: 40px 20px;">
                   <tr>
                     <td align="center">
                       <table role="presentation" width="600" cellspacing="0" cellpadding="0" style="max-width: 600px; background: linear-gradient(145deg, #1a1a1a 0%, #0d0d0d 100%); border-radius: 16px; overflow: hidden; border: 1px solid #2a2a2a;">
-                        <!-- Header -->
+                        <!-- Header with Logo -->
                         <tr>
-                          <td style="padding: 40px 40px 30px; text-align: center; border-bottom: 1px solid rgba(184, 134, 11, 0.3);">
-                            <h1 style="margin: 0; font-family: 'Urbanist', sans-serif; font-size: 28px; font-weight: 300; letter-spacing: 6px; color: #b8860b; text-transform: uppercase;">UNIQUEVISIONS</h1>
-                            <p style="margin: 16px 0 0; font-family: 'Urbanist', sans-serif; font-size: 14px; color: #b8860b; text-transform: uppercase; letter-spacing: 3px;">Neue Kontaktanfrage</p>
+                          <td style="padding: 40px 40px 30px; text-align: center; border-bottom: 1px solid rgba(201, 162, 39, 0.3);">
+                            <h1 style="margin: 0; font-family: 'Urbanist', sans-serif; font-size: 26px; font-weight: 600; letter-spacing: -0.025em; color: #c9a227;">UNIQUEVISIONS</h1>
+                            <p style="margin: 16px 0 0; font-family: 'Urbanist', sans-serif; font-size: 13px; font-weight: 500; color: #c9a227; text-transform: uppercase; letter-spacing: 2px;">Neue Kontaktanfrage</p>
                           </td>
                         </tr>
                         <!-- Main Content -->
                         <tr>
                           <td style="padding: 40px;">
                             <!-- Contact Details Box -->
-                            <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background: rgba(184, 134, 11, 0.08); border: 1px solid rgba(184, 134, 11, 0.2); border-radius: 12px; margin-bottom: 24px;">
+                            <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background: rgba(201, 162, 39, 0.08); border: 1px solid rgba(201, 162, 39, 0.2); border-radius: 12px; margin-bottom: 24px;">
                               <tr>
                                 <td style="padding: 24px;">
-                                  <p style="margin: 0 0 16px; font-family: 'Urbanist', sans-serif; font-size: 14px; font-weight: 600; color: #b8860b; text-transform: uppercase; letter-spacing: 2px;">
+                                  <p style="margin: 0 0 16px; font-family: 'Urbanist', sans-serif; font-size: 13px; font-weight: 600; color: #c9a227; text-transform: uppercase; letter-spacing: 1.5px;">
                                     Kontaktdaten
                                   </p>
                                   <p style="margin: 0 0 8px; font-family: 'Jost', sans-serif; font-size: 16px; color: #ffffff;">
                                     <span style="color: #707070;">Name:</span> ${formData.firstName.trim()} ${formData.lastName.trim()}
                                   </p>
                                   <p style="margin: 0 0 8px; font-family: 'Jost', sans-serif; font-size: 16px; color: #ffffff;">
-                                    <span style="color: #707070;">E-Mail:</span> <a href="mailto:${formData.email.trim()}" style="color: #b8860b; text-decoration: none;">${formData.email.trim()}</a>
+                                    <span style="color: #707070;">E-Mail:</span> <a href="mailto:${formData.email.trim()}" style="color: #c9a227; text-decoration: none;">${formData.email.trim()}</a>
                                   </p>
                                   ${formData.package ? `
                                   <p style="margin: 0; font-family: 'Jost', sans-serif; font-size: 16px; color: #ffffff;">
@@ -227,7 +227,7 @@ export const Contact = () => {
                             <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background: rgba(255,255,255,0.03); border: 1px solid #2a2a2a; border-radius: 12px; margin-bottom: 30px;">
                               <tr>
                                 <td style="padding: 24px;">
-                                  <p style="margin: 0 0 12px; font-family: 'Urbanist', sans-serif; font-size: 14px; font-weight: 600; color: #707070; text-transform: uppercase; letter-spacing: 2px;">
+                                  <p style="margin: 0 0 12px; font-family: 'Urbanist', sans-serif; font-size: 13px; font-weight: 600; color: #707070; text-transform: uppercase; letter-spacing: 1.5px;">
                                     Nachricht
                                   </p>
                                   <p style="margin: 0; font-family: 'Jost', sans-serif; font-size: 15px; line-height: 1.7; color: #d0d0d0;">
@@ -240,7 +240,7 @@ export const Contact = () => {
                             <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
                               <tr>
                                 <td align="center">
-                                  <a href="${window.location.origin}/admin/contacts" style="display: inline-block; padding: 14px 32px; background: linear-gradient(135deg, #b8860b 0%, #8b6508 100%); color: #ffffff; text-decoration: none; font-family: 'Urbanist', sans-serif; font-size: 14px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; border-radius: 8px;">
+                                  <a href="${window.location.origin}/admin/contacts" style="display: inline-block; padding: 14px 32px; background: linear-gradient(135deg, #c9a227 0%, #a68520 100%); color: #0a0a0a; text-decoration: none; font-family: 'Urbanist', sans-serif; font-size: 13px; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; border-radius: 8px;">
                                     Im Admin-Bereich ansehen
                                   </a>
                                 </td>
