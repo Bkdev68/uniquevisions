@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useProjects, useTestimonials, useSiteContent } from "@/hooks/useContent";
 import type { Project, Testimonial } from "@/hooks/useContent";
+import { LanguageProvider } from "@/hooks/useLanguage";
 
 import { EditProvider, useEditContext } from "@/contexts/EditContext";
 import { EditorToolbar } from "@/components/editor/EditorToolbar";
@@ -331,9 +332,11 @@ const VisualEditorContent: React.FC = () => {
 
 const VisualEditor: React.FC = () => {
   return (
-    <EditProvider>
-      <VisualEditorContent />
-    </EditProvider>
+    <LanguageProvider>
+      <EditProvider>
+        <VisualEditorContent />
+      </EditProvider>
+    </LanguageProvider>
   );
 };
 
