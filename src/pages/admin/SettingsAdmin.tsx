@@ -6,7 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
-import { Loader2, Save, Mail, TestTube } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
+import { Loader2, Save, Mail, TestTube, Lock, Globe } from "lucide-react";
 
 interface Setting {
   id: string;
@@ -20,6 +21,7 @@ const SettingsAdmin = () => {
   const [notificationEmail, setNotificationEmail] = useState("");
   const [testEmail, setTestEmail] = useState("");
   const [isTesting, setIsTesting] = useState(false);
+  const [maintenanceMode, setMaintenanceMode] = useState(true);
 
   // Fetch settings
   const { data: settings, isLoading } = useQuery({
@@ -40,10 +42,12 @@ const SettingsAdmin = () => {
       if (emailSetting?.value) {
         setNotificationEmail(emailSetting.value);
       }
+      const maintenanceSetting = settings.find((s) => s.key === "maintenance_mode");
+      setMaintenanceMode(maintenanceSetting?.value !== "false");
     }
   }, [settings]);
 
-  // Save mutation
+  // Save email mutation
   const saveMutation = useMutation({
     mutationFn: async () => {
       const { error } = await supabase
@@ -66,6 +70,38 @@ const SettingsAdmin = () => {
       });
     },
   });
+
+  // Maintenance mode mutation
+  const maintenanceMutation = useMutation({
+    mutationFn: async (enabled: boolean) => {
+      const { error } = await supabase
+        .from("settings")
+        .upsert({ key: "maintenance_mode", value: enabled ? "true" : "false" }, { onConflict: "key" });
+      if (error) throw error;
+      return enabled;
+    },
+    onSuccess: (enabled) => {
+      queryClient.invalidateQueries({ queryKey: ["admin-settings"] });
+      toast({
+        title: enabled ? "Wartungsmodus aktiviert" : "Seite ist jetzt öffentlich",
+        description: enabled 
+          ? "Besucher sehen jetzt die 'Coming Soon'-Seite." 
+          : "Die Seite ist jetzt für alle Besucher zugänglich.",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Fehler",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleMaintenanceToggle = (checked: boolean) => {
+    setMaintenanceMode(checked);
+    maintenanceMutation.mutate(checked);
+  };
 
   // Test email function
   const handleTestEmail = async () => {
@@ -129,6 +165,43 @@ const SettingsAdmin = () => {
           Verwalte E-Mail- und System-Einstellungen
         </p>
       </div>
+
+      {/* Maintenance Mode */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            {maintenanceMode ? (
+              <Lock className="h-5 w-5 text-orange-500" />
+            ) : (
+              <Globe className="h-5 w-5 text-green-500" />
+            )}
+            Wartungsmodus
+          </CardTitle>
+          <CardDescription>
+            Aktiviere den Wartungsmodus, um die Seite vor der Öffentlichkeit zu verbergen
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center justify-between">
+            <div className="space-y-1">
+              <Label htmlFor="maintenance-mode">
+                {maintenanceMode ? "Seite ist offline" : "Seite ist öffentlich"}
+              </Label>
+              <p className="text-sm text-muted-foreground">
+                {maintenanceMode 
+                  ? "Besucher sehen eine 'Coming Soon'-Seite. Nur Admins können die volle Seite sehen."
+                  : "Alle Besucher können die Seite normal aufrufen."}
+              </p>
+            </div>
+            <Switch
+              id="maintenance-mode"
+              checked={maintenanceMode}
+              onCheckedChange={handleMaintenanceToggle}
+              disabled={maintenanceMutation.isPending}
+            />
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Email Settings */}
       <Card>
