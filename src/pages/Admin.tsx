@@ -2,11 +2,12 @@ import { useEffect } from "react";
 import { useNavigate, Outlet, Link, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
-import { Loader2, LogOut, FolderOpen, MessageSquare, FileText, Lightbulb, Mail } from "lucide-react";
+import { Loader2, LogOut, FolderOpen, MessageSquare, FileText, Lightbulb, Mail, Eye } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ThemeToggle } from "@/components/ThemeToggle";
 
 const navItems = [
+  { label: "Visual Editor", path: "/admin/visual", icon: Eye },
   { label: "Projekte", path: "/admin/projects", icon: FolderOpen },
   { label: "Testimonials", path: "/admin/testimonials", icon: MessageSquare },
   { label: "Site-Inhalte", path: "/admin/content", icon: FileText },
