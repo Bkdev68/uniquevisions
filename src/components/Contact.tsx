@@ -54,6 +54,7 @@ export const Contact = () => {
     setIsSubmitting(true);
     
     try {
+      // Save to database
       const { error } = await supabase.from("contact_submissions").insert({
         first_name: formData.firstName.trim(),
         last_name: formData.lastName.trim(),
@@ -64,6 +65,77 @@ export const Contact = () => {
       });
 
       if (error) throw error;
+
+      // Get notification email from settings
+      const { data: settingsData } = await supabase
+        .from("settings")
+        .select("value")
+        .eq("key", "notification_email")
+        .maybeSingle();
+      
+      const notificationEmail = settingsData?.value || "kontakt@uniquevisions.at";
+
+      // Send confirmation email to user
+      try {
+        await supabase.functions.invoke("send-email", {
+          body: {
+            to: formData.email.trim(),
+            subject: t("Vielen Dank für Ihre Anfrage - UNIQUEVISIONS", "Thank you for your inquiry - UNIQUEVISIONS"),
+            html: `
+              <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+                <h1 style="color: #1a1a1a;">${t("Vielen Dank für Ihre Anfrage!", "Thank you for your inquiry!")}</h1>
+                <p>${t(`Hallo ${formData.firstName.trim()},`, `Hello ${formData.firstName.trim()},`)}</p>
+                <p>${t(
+                  "wir haben Ihre Nachricht erhalten und werden uns schnellstmöglich bei Ihnen melden.",
+                  "we have received your message and will get back to you as soon as possible."
+                )}</p>
+                <p>${t("Ihre Anfrage:", "Your request:")}</p>
+                <div style="background: #f5f5f5; padding: 15px; border-radius: 8px; margin: 15px 0;">
+                  <p style="margin: 5px 0;"><strong>${t("Name:", "Name:")}</strong> ${formData.firstName.trim()} ${formData.lastName.trim()}</p>
+                  ${formData.package ? `<p style="margin: 5px 0;"><strong>${t("Paket:", "Package:")}</strong> ${formData.package}</p>` : ""}
+                  <p style="margin: 5px 0;"><strong>${t("Nachricht:", "Message:")}</strong></p>
+                  <p style="margin: 5px 0;">${formData.message.trim().replace(/\n/g, "<br>")}</p>
+                </div>
+                <p>${t("Mit besten Grüßen,", "Best regards,")}<br><strong>UNIQUEVISIONS</strong></p>
+              </div>
+            `,
+            text: t(
+              `Vielen Dank für Ihre Anfrage!\n\nHallo ${formData.firstName.trim()},\n\nwir haben Ihre Nachricht erhalten und werden uns schnellstmöglich bei Ihnen melden.\n\nMit besten Grüßen,\nUNIQUEVISIONS`,
+              `Thank you for your inquiry!\n\nHello ${formData.firstName.trim()},\n\nwe have received your message and will get back to you as soon as possible.\n\nBest regards,\nUNIQUEVISIONS`
+            ),
+          },
+        });
+      } catch (emailError) {
+        console.error("Confirmation email error:", emailError);
+        // Don't fail the form submission if email fails
+      }
+
+      // Send notification email to admin
+      try {
+        await supabase.functions.invoke("send-email", {
+          body: {
+            to: notificationEmail,
+            subject: `Neue Kontaktanfrage von ${formData.firstName.trim()} ${formData.lastName.trim()}`,
+            html: `
+              <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+                <h1 style="color: #1a1a1a;">Neue Kontaktanfrage</h1>
+                <div style="background: #f5f5f5; padding: 15px; border-radius: 8px; margin: 15px 0;">
+                  <p style="margin: 5px 0;"><strong>Name:</strong> ${formData.firstName.trim()} ${formData.lastName.trim()}</p>
+                  <p style="margin: 5px 0;"><strong>E-Mail:</strong> ${formData.email.trim()}</p>
+                  ${formData.package ? `<p style="margin: 5px 0;"><strong>Paket:</strong> ${formData.package}</p>` : ""}
+                  <p style="margin: 5px 0;"><strong>Nachricht:</strong></p>
+                  <p style="margin: 5px 0;">${formData.message.trim().replace(/\n/g, "<br>")}</p>
+                </div>
+                <p><a href="${window.location.origin}/admin/contacts" style="color: #b8860b;">Im Admin-Bereich ansehen</a></p>
+              </div>
+            `,
+            text: `Neue Kontaktanfrage\n\nName: ${formData.firstName.trim()} ${formData.lastName.trim()}\nE-Mail: ${formData.email.trim()}\n${formData.package ? `Paket: ${formData.package}\n` : ""}Nachricht:\n${formData.message.trim()}`,
+          },
+        });
+      } catch (emailError) {
+        console.error("Notification email error:", emailError);
+        // Don't fail the form submission if email fails
+      }
 
       toast({
         title: t("Nachricht gesendet!", "Message Sent!"),
