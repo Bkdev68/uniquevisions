@@ -52,6 +52,8 @@ export interface GridElement {
   type: GridElementType;
   content: string;
   colSpan?: 1 | 2 | 3;
+  textColor?: string;
+  bgColor?: string;
   data?: any; // For complex elements like projects/testimonials
 }
 
@@ -506,6 +508,10 @@ const VisualEditorContent: React.FC = () => {
                       onDelete={() => deleteElement(element.id)}
                       onCycleSpan={() => cycleColSpan(element.id)}
                       type={element.type}
+                      textColor={element.textColor}
+                      bgColor={element.bgColor}
+                      onTextColorChange={(color) => updateElement(element.id, { textColor: color })}
+                      onBgColorChange={(color) => updateElement(element.id, { bgColor: color })}
                     >
                       {renderElement(element)}
                     </GridItem>
@@ -518,7 +524,11 @@ const VisualEditorContent: React.FC = () => {
               {gridElements.map((element) => (
                 <div
                   key={element.id}
-                  className={cn("py-2", getColSpanClass(element.colSpan))}
+                  className={cn("py-2 rounded-lg", getColSpanClass(element.colSpan))}
+                  style={{
+                    color: element.textColor && element.textColor !== "transparent" ? element.textColor : undefined,
+                    backgroundColor: element.bgColor && element.bgColor !== "transparent" ? element.bgColor : undefined,
+                  }}
                 >
                   {renderElement(element)}
                 </div>
