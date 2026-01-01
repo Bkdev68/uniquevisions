@@ -13,6 +13,8 @@ import {
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { Send, Loader2 } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { useLanguage } from "@/hooks/useLanguage";
 
 const packageOptions = [
   { value: "gold", label: "Gold" },
@@ -23,6 +25,7 @@ const packageOptions = [
 
 export const Contact = () => {
   const { toast } = useToast();
+  const { t } = useLanguage();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     firstName: "",
@@ -38,8 +41,11 @@ export const Contact = () => {
     
     if (!formData.gdprConsent) {
       toast({
-        title: "DSGVO-Zustimmung erforderlich",
-        description: "Bitte stimmen Sie der Datenschutzerklärung zu.",
+        title: t("DSGVO-Zustimmung erforderlich", "GDPR Consent Required"),
+        description: t(
+          "Bitte stimmen Sie der Datenschutzerklärung zu.",
+          "Please agree to the privacy policy."
+        ),
         variant: "destructive",
       });
       return;
@@ -47,23 +53,47 @@ export const Contact = () => {
 
     setIsSubmitting(true);
     
-    // Simulate form submission
-    await new Promise((resolve) => setTimeout(resolve, 1500));
-    
-    toast({
-      title: "Nachricht gesendet!",
-      description: "Vielen Dank für Ihre Anfrage. Ich melde mich zeitnah bei Ihnen.",
-    });
-    
-    setFormData({
-      firstName: "",
-      lastName: "",
-      email: "",
-      package: "",
-      message: "",
-      gdprConsent: false,
-    });
-    setIsSubmitting(false);
+    try {
+      const { error } = await supabase.from("contact_submissions").insert({
+        first_name: formData.firstName.trim(),
+        last_name: formData.lastName.trim(),
+        email: formData.email.trim(),
+        package: formData.package || null,
+        message: formData.message.trim(),
+        gdpr_consent: formData.gdprConsent,
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: t("Nachricht gesendet!", "Message Sent!"),
+        description: t(
+          "Vielen Dank für Ihre Anfrage. Ich melde mich zeitnah bei Ihnen.",
+          "Thank you for your inquiry. I will get back to you soon."
+        ),
+      });
+      
+      setFormData({
+        firstName: "",
+        lastName: "",
+        email: "",
+        package: "",
+        message: "",
+        gdprConsent: false,
+      });
+    } catch (error) {
+      console.error("Contact form error:", error);
+      toast({
+        title: t("Fehler", "Error"),
+        description: t(
+          "Beim Senden ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.",
+          "An error occurred while sending. Please try again."
+        ),
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -71,10 +101,13 @@ export const Contact = () => {
       <div className="container mx-auto px-4 lg:px-8">
         <AnimatedSection className="text-center mb-16">
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-display font-semibold mb-4">
-            Kontaktanfrage
+            {t("Kontaktanfrage", "Contact Request")}
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Teilen Sie Ihre Anforderungen – anschließend besprechen wir den optimalen Rahmen für Ihr Projekt.
+            {t(
+              "Teilen Sie Ihre Anforderungen – anschließend besprechen wir den optimalen Rahmen für Ihr Projekt.",
+              "Share your requirements – then we will discuss the optimal framework for your project."
+            )}
           </p>
         </AnimatedSection>
 
@@ -86,7 +119,7 @@ export const Contact = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
               <div>
                 <label className="block text-sm font-medium text-foreground mb-2">
-                  Vorname
+                  {t("Vorname", "First Name")}
                 </label>
                 <Input
                   type="text"
@@ -95,13 +128,14 @@ export const Contact = () => {
                     setFormData({ ...formData, firstName: e.target.value })
                   }
                   required
-                  placeholder="Ihr Vorname"
+                  maxLength={100}
+                  placeholder={t("Ihr Vorname", "Your first name")}
                   className="bg-background"
                 />
               </div>
               <div>
                 <label className="block text-sm font-medium text-foreground mb-2">
-                  Nachname
+                  {t("Nachname", "Last Name")}
                 </label>
                 <Input
                   type="text"
@@ -110,7 +144,8 @@ export const Contact = () => {
                     setFormData({ ...formData, lastName: e.target.value })
                   }
                   required
-                  placeholder="Ihr Nachname"
+                  maxLength={100}
+                  placeholder={t("Ihr Nachname", "Your last name")}
                   className="bg-background"
                 />
               </div>
@@ -118,7 +153,7 @@ export const Contact = () => {
 
             <div className="mb-6">
               <label className="block text-sm font-medium text-foreground mb-2">
-                E-Mail Adresse
+                {t("E-Mail Adresse", "Email Address")}
               </label>
               <Input
                 type="email"
@@ -127,6 +162,7 @@ export const Contact = () => {
                   setFormData({ ...formData, email: e.target.value })
                 }
                 required
+                maxLength={255}
                 placeholder="ihre@email.at"
                 className="bg-background"
               />
@@ -134,7 +170,7 @@ export const Contact = () => {
 
             <div className="mb-6">
               <label className="block text-sm font-medium text-foreground mb-2">
-                Paket auswählen
+                {t("Paket auswählen", "Select Package")}
               </label>
               <Select
                 value={formData.package}
@@ -143,7 +179,7 @@ export const Contact = () => {
                 }
               >
                 <SelectTrigger className="bg-background">
-                  <SelectValue placeholder="Paket auswählen" />
+                  <SelectValue placeholder={t("Paket auswählen", "Select package")} />
                 </SelectTrigger>
                 <SelectContent>
                   {packageOptions.map((option) => (
@@ -157,7 +193,7 @@ export const Contact = () => {
 
             <div className="mb-6">
               <label className="block text-sm font-medium text-foreground mb-2">
-                Ihre Nachricht
+                {t("Ihre Nachricht", "Your Message")}
               </label>
               <Textarea
                 value={formData.message}
@@ -165,7 +201,8 @@ export const Contact = () => {
                   setFormData({ ...formData, message: e.target.value })
                 }
                 required
-                placeholder="Beschreiben Sie Ihr Projekt..."
+                maxLength={2000}
+                placeholder={t("Beschreiben Sie Ihr Projekt...", "Describe your project...")}
                 rows={5}
                 className="bg-background resize-none"
               />
@@ -185,11 +222,10 @@ export const Contact = () => {
                   htmlFor="gdpr"
                   className="text-sm text-muted-foreground cursor-pointer"
                 >
-                  Ich habe die{" "}
-                  <a href="#" className="text-primary hover:underline">
-                    Datenschutzerklärung
-                  </a>{" "}
-                  gelesen und stimme der Verarbeitung meiner Daten zu.
+                  {t(
+                    "Ich habe die Datenschutzerklärung gelesen und stimme der Verarbeitung meiner Daten zu.",
+                    "I have read the privacy policy and agree to the processing of my data."
+                  )}
                 </label>
               </div>
             </div>
@@ -202,12 +238,12 @@ export const Contact = () => {
               {isSubmitting ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Wird gesendet...
+                  {t("Wird gesendet...", "Sending...")}
                 </>
               ) : (
                 <>
                   <Send className="mr-2 h-4 w-4" />
-                  Absenden!
+                  {t("Absenden!", "Submit!")}
                 </>
               )}
             </Button>

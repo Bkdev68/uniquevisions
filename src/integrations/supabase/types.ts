@@ -14,7 +14,207 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      contact_submissions: {
+        Row: {
+          created_at: string
+          email: string
+          first_name: string
+          gdpr_consent: boolean
+          id: string
+          is_read: boolean | null
+          last_name: string
+          message: string
+          package: string | null
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          first_name: string
+          gdpr_consent?: boolean
+          id?: string
+          is_read?: boolean | null
+          last_name: string
+          message: string
+          package?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          first_name?: string
+          gdpr_consent?: boolean
+          id?: string
+          is_read?: boolean | null
+          last_name?: string
+          message?: string
+          package?: string | null
+        }
+        Relationships: []
+      }
+      insights: {
+        Row: {
+          content: string | null
+          created_at: string
+          featured_image: string | null
+          id: string
+          is_published: boolean | null
+          language: string
+          meta_description: string | null
+          meta_title: string | null
+          published_at: string | null
+          slug: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          content?: string | null
+          created_at?: string
+          featured_image?: string | null
+          id?: string
+          is_published?: boolean | null
+          language?: string
+          meta_description?: string | null
+          meta_title?: string | null
+          published_at?: string | null
+          slug?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          content?: string | null
+          created_at?: string
+          featured_image?: string | null
+          id?: string
+          is_published?: boolean | null
+          language?: string
+          meta_description?: string | null
+          meta_title?: string | null
+          published_at?: string | null
+          slug?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      projects: {
+        Row: {
+          client: string | null
+          created_at: string
+          description: string | null
+          display_order: number | null
+          gallery: Json | null
+          id: string
+          image_url: string | null
+          is_published: boolean | null
+          language: string
+          meta_description: string | null
+          meta_title: string | null
+          role: string | null
+          slug: string | null
+          title: string
+          updated_at: string
+          video_url: string | null
+        }
+        Insert: {
+          client?: string | null
+          created_at?: string
+          description?: string | null
+          display_order?: number | null
+          gallery?: Json | null
+          id?: string
+          image_url?: string | null
+          is_published?: boolean | null
+          language?: string
+          meta_description?: string | null
+          meta_title?: string | null
+          role?: string | null
+          slug?: string | null
+          title: string
+          updated_at?: string
+          video_url?: string | null
+        }
+        Update: {
+          client?: string | null
+          created_at?: string
+          description?: string | null
+          display_order?: number | null
+          gallery?: Json | null
+          id?: string
+          image_url?: string | null
+          is_published?: boolean | null
+          language?: string
+          meta_description?: string | null
+          meta_title?: string | null
+          role?: string | null
+          slug?: string | null
+          title?: string
+          updated_at?: string
+          video_url?: string | null
+        }
+        Relationships: []
+      }
+      site_content: {
+        Row: {
+          id: string
+          key: string
+          section: string
+          type: string | null
+          updated_at: string
+          value_de: string | null
+          value_en: string | null
+        }
+        Insert: {
+          id?: string
+          key: string
+          section: string
+          type?: string | null
+          updated_at?: string
+          value_de?: string | null
+          value_en?: string | null
+        }
+        Update: {
+          id?: string
+          key?: string
+          section?: string
+          type?: string | null
+          updated_at?: string
+          value_de?: string | null
+          value_en?: string | null
+        }
+        Relationships: []
+      }
+      testimonials: {
+        Row: {
+          company: string | null
+          created_at: string
+          display_order: number | null
+          id: string
+          is_published: boolean | null
+          language: string
+          name: string
+          quote: string
+        }
+        Insert: {
+          company?: string | null
+          created_at?: string
+          display_order?: number | null
+          id?: string
+          is_published?: boolean | null
+          language?: string
+          name: string
+          quote: string
+        }
+        Update: {
+          company?: string | null
+          created_at?: string
+          display_order?: number | null
+          id?: string
+          is_published?: boolean | null
+          language?: string
+          name?: string
+          quote?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
