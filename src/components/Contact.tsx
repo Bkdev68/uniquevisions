@@ -88,69 +88,80 @@ export const Contact = () => {
                 <meta charset="utf-8">
                 <meta name="viewport" content="width=device-width, initial-scale=1.0">
                 <link href="https://fonts.googleapis.com/css2?family=Urbanist:wght@400;500;600;700&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+                <style>
+                  @media only screen and (max-width: 600px) {
+                    .email-container { width: 100% !important; border-radius: 0 !important; }
+                    .email-header { padding: 24px 20px 20px !important; }
+                    .email-content { padding: 24px 20px !important; }
+                    .email-footer { padding: 20px !important; }
+                    .email-box { padding: 16px !important; }
+                    .email-logo { font-size: 22px !important; }
+                    .email-title { font-size: 18px !important; }
+                  }
+                </style>
               </head>
               <body style="margin: 0; padding: 0; background-color: #0a0a0a; font-family: 'Jost', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;">
-                <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color: #0a0a0a; padding: 40px 20px;">
+                <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color: #0a0a0a; padding: 20px 12px;">
                   <tr>
                     <td align="center">
-                      <table role="presentation" width="600" cellspacing="0" cellpadding="0" style="max-width: 600px; background: linear-gradient(145deg, #1a1a1a 0%, #0d0d0d 100%); border-radius: 16px; overflow: hidden; border: 1px solid #2a2a2a;">
+                      <table role="presentation" class="email-container" width="600" cellspacing="0" cellpadding="0" style="max-width: 600px; width: 100%; background: linear-gradient(145deg, #1a1a1a 0%, #0d0d0d 100%); border-radius: 16px; overflow: hidden; border: 1px solid #2a2a2a;">
                         <!-- Header with Logo -->
                         <tr>
-                          <td style="padding: 40px 40px 30px; text-align: center; border-bottom: 1px solid rgba(201, 162, 39, 0.3);">
-                            <h1 style="margin: 0; font-family: 'Urbanist', sans-serif; font-size: 26px; font-weight: 600; letter-spacing: -0.025em; color: #c9a227;">UNIQUEVISIONS</h1>
+                          <td class="email-header" style="padding: 32px 32px 24px; text-align: center; border-bottom: 1px solid rgba(201, 162, 39, 0.3);">
+                            <h1 class="email-logo" style="margin: 0; font-family: 'Urbanist', sans-serif; font-size: 24px; font-weight: 600; letter-spacing: -0.025em; color: #c9a227;">UNIQUEVISIONS</h1>
                           </td>
                         </tr>
                         <!-- Main Content -->
                         <tr>
-                          <td style="padding: 40px;">
-                            <h2 style="margin: 0 0 24px; font-family: 'Urbanist', sans-serif; font-size: 22px; font-weight: 600; letter-spacing: -0.025em; color: #ffffff; text-align: center;">
+                          <td class="email-content" style="padding: 32px;">
+                            <h2 class="email-title" style="margin: 0 0 20px; font-family: 'Urbanist', sans-serif; font-size: 20px; font-weight: 600; letter-spacing: -0.025em; color: #ffffff; text-align: center;">
                               ${t("Vielen Dank für Ihre Anfrage", "Thank you for your inquiry")}
                             </h2>
-                            <p style="margin: 0 0 20px; font-family: 'Jost', sans-serif; font-size: 16px; line-height: 1.7; color: #a0a0a0;">
+                            <p style="margin: 0 0 16px; font-family: 'Jost', sans-serif; font-size: 15px; line-height: 1.7; color: #a0a0a0;">
                               ${t(`Hallo ${formData.firstName.trim()},`, `Hello ${formData.firstName.trim()},`)}
                             </p>
-                            <p style="margin: 0 0 30px; font-family: 'Jost', sans-serif; font-size: 16px; line-height: 1.7; color: #a0a0a0;">
+                            <p style="margin: 0 0 24px; font-family: 'Jost', sans-serif; font-size: 15px; line-height: 1.7; color: #a0a0a0;">
                               ${t(
                                 "wir haben Ihre Nachricht erhalten und freuen uns über Ihr Interesse. Wir werden uns schnellstmöglich bei Ihnen melden, um Ihr Projekt zu besprechen.",
                                 "we have received your message and appreciate your interest. We will get back to you as soon as possible to discuss your project."
                               )}
                             </p>
                             <!-- Request Summary Box -->
-                            <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background: rgba(201, 162, 39, 0.08); border: 1px solid rgba(201, 162, 39, 0.2); border-radius: 12px; margin-bottom: 30px;">
+                            <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background: rgba(201, 162, 39, 0.08); border: 1px solid rgba(201, 162, 39, 0.2); border-radius: 12px; margin-bottom: 24px;">
                               <tr>
-                                <td style="padding: 24px;">
-                                  <p style="margin: 0 0 16px; font-family: 'Urbanist', sans-serif; font-size: 13px; font-weight: 600; color: #c9a227; text-transform: uppercase; letter-spacing: 1.5px;">
+                                <td class="email-box" style="padding: 20px;">
+                                  <p style="margin: 0 0 12px; font-family: 'Urbanist', sans-serif; font-size: 12px; font-weight: 600; color: #c9a227; text-transform: uppercase; letter-spacing: 1.5px;">
                                     ${t("Ihre Anfrage", "Your Request")}
                                   </p>
-                                  <p style="margin: 0 0 8px; font-family: 'Jost', sans-serif; font-size: 15px; color: #ffffff;">
+                                  <p style="margin: 0 0 6px; font-family: 'Jost', sans-serif; font-size: 14px; color: #ffffff;">
                                     <span style="color: #707070;">${t("Name:", "Name:")}</span> ${formData.firstName.trim()} ${formData.lastName.trim()}
                                   </p>
                                   ${formData.package ? `
-                                  <p style="margin: 0 0 8px; font-family: 'Jost', sans-serif; font-size: 15px; color: #ffffff;">
+                                  <p style="margin: 0 0 6px; font-family: 'Jost', sans-serif; font-size: 14px; color: #ffffff;">
                                     <span style="color: #707070;">${t("Paket:", "Package:")}</span> ${formData.package.charAt(0).toUpperCase() + formData.package.slice(1)}
                                   </p>
                                   ` : ""}
-                                  <p style="margin: 16px 0 8px; font-family: 'Jost', sans-serif; font-size: 15px; color: #707070;">
+                                  <p style="margin: 12px 0 6px; font-family: 'Jost', sans-serif; font-size: 14px; color: #707070;">
                                     ${t("Nachricht:", "Message:")}
                                   </p>
-                                  <p style="margin: 0; font-family: 'Jost', sans-serif; font-size: 15px; line-height: 1.6; color: #d0d0d0; font-style: italic;">
+                                  <p style="margin: 0; font-family: 'Jost', sans-serif; font-size: 14px; line-height: 1.6; color: #d0d0d0; font-style: italic;">
                                     "${formData.message.trim().replace(/\n/g, "<br>")}"
                                   </p>
                                 </td>
                               </tr>
                             </table>
-                            <p style="margin: 0; font-family: 'Jost', sans-serif; font-size: 16px; line-height: 1.7; color: #a0a0a0;">
+                            <p style="margin: 0; font-family: 'Jost', sans-serif; font-size: 15px; line-height: 1.7; color: #a0a0a0;">
                               ${t("Mit besten Grüßen,", "Best regards,")}
                             </p>
-                            <p style="margin: 8px 0 0; font-family: 'Urbanist', sans-serif; font-size: 18px; font-weight: 600; letter-spacing: -0.025em; color: #c9a227;">
+                            <p style="margin: 6px 0 0; font-family: 'Urbanist', sans-serif; font-size: 16px; font-weight: 600; letter-spacing: -0.025em; color: #c9a227;">
                               UNIQUEVISIONS
                             </p>
                           </td>
                         </tr>
                         <!-- Footer -->
                         <tr>
-                          <td style="padding: 24px 40px; background: rgba(0,0,0,0.3); border-top: 1px solid #2a2a2a; text-align: center;">
-                            <p style="margin: 0; font-family: 'Jost', sans-serif; font-size: 12px; color: #606060;">
+                          <td class="email-footer" style="padding: 20px 32px; background: rgba(0,0,0,0.3); border-top: 1px solid #2a2a2a; text-align: center;">
+                            <p style="margin: 0; font-family: 'Jost', sans-serif; font-size: 11px; color: #606060;">
                               © ${new Date().getFullYear()} UNIQUEVISIONS. ${t("Alle Rechte vorbehalten.", "All rights reserved.")}
                             </p>
                           </td>
@@ -186,37 +197,49 @@ export const Contact = () => {
                 <meta charset="utf-8">
                 <meta name="viewport" content="width=device-width, initial-scale=1.0">
                 <link href="https://fonts.googleapis.com/css2?family=Urbanist:wght@400;500;600;700&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+                <style>
+                  @media only screen and (max-width: 600px) {
+                    .email-container { width: 100% !important; border-radius: 0 !important; }
+                    .email-header { padding: 24px 20px 20px !important; }
+                    .email-content { padding: 24px 20px !important; }
+                    .email-footer { padding: 20px !important; }
+                    .email-box { padding: 16px !important; }
+                    .email-logo { font-size: 22px !important; }
+                    .email-subtitle { font-size: 11px !important; }
+                    .email-button { padding: 12px 24px !important; font-size: 12px !important; }
+                  }
+                </style>
               </head>
               <body style="margin: 0; padding: 0; background-color: #0a0a0a; font-family: 'Jost', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;">
-                <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color: #0a0a0a; padding: 40px 20px;">
+                <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color: #0a0a0a; padding: 20px 12px;">
                   <tr>
                     <td align="center">
-                      <table role="presentation" width="600" cellspacing="0" cellpadding="0" style="max-width: 600px; background: linear-gradient(145deg, #1a1a1a 0%, #0d0d0d 100%); border-radius: 16px; overflow: hidden; border: 1px solid #2a2a2a;">
+                      <table role="presentation" class="email-container" width="600" cellspacing="0" cellpadding="0" style="max-width: 600px; width: 100%; background: linear-gradient(145deg, #1a1a1a 0%, #0d0d0d 100%); border-radius: 16px; overflow: hidden; border: 1px solid #2a2a2a;">
                         <!-- Header with Logo -->
                         <tr>
-                          <td style="padding: 40px 40px 30px; text-align: center; border-bottom: 1px solid rgba(201, 162, 39, 0.3);">
-                            <h1 style="margin: 0; font-family: 'Urbanist', sans-serif; font-size: 26px; font-weight: 600; letter-spacing: -0.025em; color: #c9a227;">UNIQUEVISIONS</h1>
-                            <p style="margin: 16px 0 0; font-family: 'Urbanist', sans-serif; font-size: 13px; font-weight: 500; color: #c9a227; text-transform: uppercase; letter-spacing: 2px;">Neue Kontaktanfrage</p>
+                          <td class="email-header" style="padding: 32px 32px 24px; text-align: center; border-bottom: 1px solid rgba(201, 162, 39, 0.3);">
+                            <h1 class="email-logo" style="margin: 0; font-family: 'Urbanist', sans-serif; font-size: 24px; font-weight: 600; letter-spacing: -0.025em; color: #c9a227;">UNIQUEVISIONS</h1>
+                            <p class="email-subtitle" style="margin: 12px 0 0; font-family: 'Urbanist', sans-serif; font-size: 12px; font-weight: 500; color: #c9a227; text-transform: uppercase; letter-spacing: 2px;">Neue Kontaktanfrage</p>
                           </td>
                         </tr>
                         <!-- Main Content -->
                         <tr>
-                          <td style="padding: 40px;">
+                          <td class="email-content" style="padding: 32px;">
                             <!-- Contact Details Box -->
-                            <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background: rgba(201, 162, 39, 0.08); border: 1px solid rgba(201, 162, 39, 0.2); border-radius: 12px; margin-bottom: 24px;">
+                            <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background: rgba(201, 162, 39, 0.08); border: 1px solid rgba(201, 162, 39, 0.2); border-radius: 12px; margin-bottom: 20px;">
                               <tr>
-                                <td style="padding: 24px;">
-                                  <p style="margin: 0 0 16px; font-family: 'Urbanist', sans-serif; font-size: 13px; font-weight: 600; color: #c9a227; text-transform: uppercase; letter-spacing: 1.5px;">
+                                <td class="email-box" style="padding: 20px;">
+                                  <p style="margin: 0 0 12px; font-family: 'Urbanist', sans-serif; font-size: 12px; font-weight: 600; color: #c9a227; text-transform: uppercase; letter-spacing: 1.5px;">
                                     Kontaktdaten
                                   </p>
-                                  <p style="margin: 0 0 8px; font-family: 'Jost', sans-serif; font-size: 16px; color: #ffffff;">
+                                  <p style="margin: 0 0 6px; font-family: 'Jost', sans-serif; font-size: 15px; color: #ffffff;">
                                     <span style="color: #707070;">Name:</span> ${formData.firstName.trim()} ${formData.lastName.trim()}
                                   </p>
-                                  <p style="margin: 0 0 8px; font-family: 'Jost', sans-serif; font-size: 16px; color: #ffffff;">
+                                  <p style="margin: 0 0 6px; font-family: 'Jost', sans-serif; font-size: 15px; color: #ffffff; word-break: break-all;">
                                     <span style="color: #707070;">E-Mail:</span> <a href="mailto:${formData.email.trim()}" style="color: #c9a227; text-decoration: none;">${formData.email.trim()}</a>
                                   </p>
                                   ${formData.package ? `
-                                  <p style="margin: 0; font-family: 'Jost', sans-serif; font-size: 16px; color: #ffffff;">
+                                  <p style="margin: 0; font-family: 'Jost', sans-serif; font-size: 15px; color: #ffffff;">
                                     <span style="color: #707070;">Paket:</span> ${formData.package.charAt(0).toUpperCase() + formData.package.slice(1)}
                                   </p>
                                   ` : ""}
@@ -224,13 +247,13 @@ export const Contact = () => {
                               </tr>
                             </table>
                             <!-- Message Box -->
-                            <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background: rgba(255,255,255,0.03); border: 1px solid #2a2a2a; border-radius: 12px; margin-bottom: 30px;">
+                            <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background: rgba(255,255,255,0.03); border: 1px solid #2a2a2a; border-radius: 12px; margin-bottom: 24px;">
                               <tr>
-                                <td style="padding: 24px;">
-                                  <p style="margin: 0 0 12px; font-family: 'Urbanist', sans-serif; font-size: 13px; font-weight: 600; color: #707070; text-transform: uppercase; letter-spacing: 1.5px;">
+                                <td class="email-box" style="padding: 20px;">
+                                  <p style="margin: 0 0 10px; font-family: 'Urbanist', sans-serif; font-size: 12px; font-weight: 600; color: #707070; text-transform: uppercase; letter-spacing: 1.5px;">
                                     Nachricht
                                   </p>
-                                  <p style="margin: 0; font-family: 'Jost', sans-serif; font-size: 15px; line-height: 1.7; color: #d0d0d0;">
+                                  <p style="margin: 0; font-family: 'Jost', sans-serif; font-size: 14px; line-height: 1.7; color: #d0d0d0;">
                                     ${formData.message.trim().replace(/\n/g, "<br>")}
                                   </p>
                                 </td>
@@ -240,7 +263,7 @@ export const Contact = () => {
                             <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
                               <tr>
                                 <td align="center">
-                                  <a href="${window.location.origin}/admin/contacts" style="display: inline-block; padding: 14px 32px; background: linear-gradient(135deg, #c9a227 0%, #a68520 100%); color: #0a0a0a; text-decoration: none; font-family: 'Urbanist', sans-serif; font-size: 13px; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; border-radius: 8px;">
+                                  <a class="email-button" href="${window.location.origin}/admin/contacts" style="display: inline-block; padding: 12px 28px; background: linear-gradient(135deg, #c9a227 0%, #a68520 100%); color: #0a0a0a; text-decoration: none; font-family: 'Urbanist', sans-serif; font-size: 12px; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; border-radius: 8px;">
                                     Im Admin-Bereich ansehen
                                   </a>
                                 </td>
@@ -250,8 +273,8 @@ export const Contact = () => {
                         </tr>
                         <!-- Footer -->
                         <tr>
-                          <td style="padding: 24px 40px; background: rgba(0,0,0,0.3); border-top: 1px solid #2a2a2a; text-align: center;">
-                            <p style="margin: 0; font-family: 'Jost', sans-serif; font-size: 12px; color: #606060;">
+                          <td class="email-footer" style="padding: 20px 32px; background: rgba(0,0,0,0.3); border-top: 1px solid #2a2a2a; text-align: center;">
+                            <p style="margin: 0; font-family: 'Jost', sans-serif; font-size: 11px; color: #606060;">
                               Diese E-Mail wurde automatisch generiert. © ${new Date().getFullYear()} UNIQUEVISIONS
                             </p>
                           </td>
