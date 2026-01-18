@@ -430,15 +430,17 @@ export const EditableAlbumCard: React.FC<EditableAlbumCardProps> = ({
 
             <div>
               <label className="text-sm font-medium mb-2 block">Cover-Bild</label>
-              <ImageUploader
-                currentUrl={localProject.image_url}
-                onImageChange={(url) =>
-                  setLocalProject({ ...localProject, image_url: url })
-                }
-                folder="covers"
-                aspectRatio="16/9"
-                placeholder="Cover-Bild hochladen"
-              />
+              <div className="max-w-xs">
+                <ImageUploader
+                  currentUrl={localProject.image_url}
+                  onImageChange={(url) =>
+                    setLocalProject({ ...localProject, image_url: url })
+                  }
+                  folder="covers"
+                  aspectRatio="16/9"
+                  placeholder="Cover-Bild hochladen"
+                />
+              </div>
             </div>
 
             {/* Gallery Images with Drag and Drop */}
