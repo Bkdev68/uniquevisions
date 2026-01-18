@@ -88,21 +88,34 @@ export const EditableText: React.FC<EditableTextProps> = ({
 
   return (
     <div
-      className="group relative cursor-pointer"
+      className="group relative cursor-pointer min-h-[1.5em]"
       onClick={() => setIsEditing(true)}
     >
-      <Component
-        className={cn(
-          className,
-          "group-hover:bg-primary/10 rounded px-1 -mx-1 transition-colors"
-        )}
-        style={{ color: textColor && textColor !== "transparent" ? textColor : undefined }}
-      >
-        {value || <span className="text-muted-foreground italic">{placeholder}</span>}
-      </Component>
-      <div className="absolute -right-6 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity">
-        <Pencil className="w-4 h-4 text-primary" />
-      </div>
+      {value ? (
+        <Component
+          className={cn(
+            className,
+            "group-hover:bg-primary/10 rounded px-1 -mx-1 transition-colors"
+          )}
+          style={{ color: textColor && textColor !== "transparent" ? textColor : undefined }}
+        >
+          {value}
+        </Component>
+      ) : (
+        <div 
+          className={cn(
+            "min-h-[2em] w-full border-2 border-dashed border-primary/30 rounded-md flex items-center justify-center text-muted-foreground italic hover:border-primary/60 hover:bg-primary/5 transition-colors py-2 px-4",
+            className
+          )}
+        >
+          {placeholder}
+        </div>
+      )}
+      {value && (
+        <div className="absolute -right-6 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity">
+          <Pencil className="w-4 h-4 text-primary" />
+        </div>
+      )}
     </div>
   );
 };
