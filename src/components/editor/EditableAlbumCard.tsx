@@ -27,20 +27,21 @@ import {
   SortableContext,
   sortableKeyboardCoordinates,
   useSortable,
-  verticalListSortingStrategy,
+  rectSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { ImageUploader } from "./ImageUploader";
 import type { Project, GalleryImage } from "@/hooks/useContent";
 import { cn } from "@/lib/utils";
 
-// Sortable Gallery Item Component
+// Compact Sortable Gallery Item Component
 interface SortableGalleryItemProps {
   id: string;
   index: number;
   image: GalleryImage;
   onUpdate: (field: keyof GalleryImage, value: string) => void;
   onRemove: () => void;
+  onEdit: () => void;
 }
 
 const SortableGalleryItem: React.FC<SortableGalleryItemProps> = ({
@@ -49,6 +50,7 @@ const SortableGalleryItem: React.FC<SortableGalleryItemProps> = ({
   image,
   onUpdate,
   onRemove,
+  onEdit,
 }) => {
   const {
     attributes,
@@ -69,45 +71,53 @@ const SortableGalleryItem: React.FC<SortableGalleryItemProps> = ({
       ref={setNodeRef}
       style={style}
       className={cn(
-        "p-3 bg-muted/50 rounded-lg space-y-3 border-2 border-transparent",
+        "group relative aspect-square rounded-lg overflow-hidden border-2 border-transparent cursor-pointer",
         isDragging && "opacity-50 border-primary z-50"
       )}
+      onClick={onEdit}
     >
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
+      {image.url ? (
+        <img
+          src={image.url}
+          alt={image.caption || `Bild ${index + 1}`}
+          className="w-full h-full object-cover"
+        />
+      ) : (
+        <div className="w-full h-full bg-muted flex items-center justify-center">
+          <Images className="w-8 h-8 text-muted-foreground" />
+        </div>
+      )}
+      
+      {/* Overlay with controls */}
+      <div className="absolute inset-0 bg-background/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-1">
+        <span className="text-xs font-medium">Bild {index + 1}</span>
+        <div className="flex gap-1">
           <div
             {...attributes}
             {...listeners}
-            className="cursor-grab active:cursor-grabbing p-1 hover:bg-muted rounded"
+            onClick={(e) => e.stopPropagation()}
+            className="p-1.5 bg-background/80 rounded cursor-grab active:cursor-grabbing hover:bg-background"
           >
-            <GripVertical className="w-4 h-4 text-muted-foreground" />
+            <GripVertical className="w-3 h-3" />
           </div>
-          <span className="text-sm font-medium">Bild {index + 1}</span>
+          <Button
+            size="icon"
+            variant="ghost"
+            onClick={(e) => {
+              e.stopPropagation();
+              onRemove();
+            }}
+            className="h-7 w-7 bg-background/80 hover:bg-destructive/20"
+          >
+            <X className="w-3 h-3 text-destructive" />
+          </Button>
         </div>
-        <Button
-          size="icon"
-          variant="ghost"
-          onClick={onRemove}
-          className="h-8 w-8"
-        >
-          <X className="w-4 h-4 text-destructive" />
-        </Button>
       </div>
       
-      <ImageUploader
-        currentUrl={image.url}
-        onImageChange={(url) => onUpdate("url", url)}
-        folder="gallery"
-        aspectRatio="16/9"
-        placeholder="Galerie-Bild hochladen"
-      />
-      
-      <Input
-        value={image.caption || ""}
-        onChange={(e) => onUpdate("caption", e.target.value)}
-        placeholder="Bildunterschrift (optional)"
-        className="text-sm"
-      />
+      {/* Number badge */}
+      <div className="absolute top-1 left-1 bg-background/80 text-xs px-1.5 py-0.5 rounded">
+        {index + 1}
+      </div>
     </div>
   );
 };
@@ -129,6 +139,7 @@ export const EditableAlbumCard: React.FC<EditableAlbumCardProps> = ({
   const [localProject, setLocalProject] = useState(project);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
+  const [editingImageIndex, setEditingImageIndex] = useState<number | null>(null);
   const multipleInputRef = useRef<HTMLInputElement>(null);
 
   // DnD sensors
@@ -475,7 +486,7 @@ export const EditableAlbumCard: React.FC<EditableAlbumCardProps> = ({
                 </div>
               </div>
               
-              <div className="space-y-3 max-h-96 overflow-y-auto pr-1">
+              <div className="max-h-72 overflow-y-auto pr-1">
                 {localProject.gallery.length > 0 ? (
                   <DndContext
                     sensors={sensors}
@@ -484,18 +495,21 @@ export const EditableAlbumCard: React.FC<EditableAlbumCardProps> = ({
                   >
                     <SortableContext
                       items={galleryItemIds}
-                      strategy={verticalListSortingStrategy}
+                      strategy={rectSortingStrategy}
                     >
-                      {localProject.gallery.map((image, index) => (
-                        <SortableGalleryItem
-                          key={galleryItemIds[index]}
-                          id={galleryItemIds[index]}
-                          index={index}
-                          image={image}
-                          onUpdate={(field, value) => updateGalleryImage(index, field, value)}
-                          onRemove={() => removeGalleryImage(index)}
-                        />
-                      ))}
+                      <div className="grid grid-cols-4 gap-2">
+                        {localProject.gallery.map((image, index) => (
+                          <SortableGalleryItem
+                            key={galleryItemIds[index]}
+                            id={galleryItemIds[index]}
+                            index={index}
+                            image={image}
+                            onUpdate={(field, value) => updateGalleryImage(index, field, value)}
+                            onRemove={() => removeGalleryImage(index)}
+                            onEdit={() => setEditingImageIndex(index)}
+                          />
+                        ))}
+                      </div>
                     </SortableContext>
                   </DndContext>
                 ) : (
@@ -514,6 +528,39 @@ export const EditableAlbumCard: React.FC<EditableAlbumCardProps> = ({
               <Button onClick={handleSave}>Speichern</Button>
             </div>
           </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Single Image Dialog */}
+      <Dialog open={editingImageIndex !== null} onOpenChange={(open) => !open && setEditingImageIndex(null)}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Bild {editingImageIndex !== null ? editingImageIndex + 1 : ""} bearbeiten</DialogTitle>
+          </DialogHeader>
+          {editingImageIndex !== null && localProject.gallery[editingImageIndex] && (
+            <div className="space-y-4">
+              <ImageUploader
+                currentUrl={localProject.gallery[editingImageIndex].url}
+                onImageChange={(url) => updateGalleryImage(editingImageIndex, "url", url)}
+                folder="gallery"
+                aspectRatio="16/9"
+                placeholder="Bild hochladen"
+              />
+              <div>
+                <label className="text-sm font-medium mb-1 block">Bildunterschrift (optional)</label>
+                <Input
+                  value={localProject.gallery[editingImageIndex].caption || ""}
+                  onChange={(e) => updateGalleryImage(editingImageIndex, "caption", e.target.value)}
+                  placeholder="Beschreibung..."
+                />
+              </div>
+              <div className="flex justify-end gap-2">
+                <Button variant="outline" onClick={() => setEditingImageIndex(null)}>
+                  Fertig
+                </Button>
+              </div>
+            </div>
+          )}
         </DialogContent>
       </Dialog>
     </>
