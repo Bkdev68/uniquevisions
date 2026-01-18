@@ -56,6 +56,7 @@ export interface GridElement {
   textColor?: string;
   bgColor?: string;
   fontFamily?: string;
+  fontSize?: string;
   data?: any; // For complex elements like projects/testimonials
 }
 
@@ -130,6 +131,7 @@ const createInitialGrid = (
                 textColor: savedContent.textColor,
                 bgColor: savedContent.bgColor,
                 fontFamily: savedContent.fontFamily,
+                fontSize: savedContent.fontSize,
               });
             } catch {
               // Fallback: use layout info only
@@ -520,6 +522,7 @@ const VisualEditorContent: React.FC = () => {
             textColor: el.textColor,
             bgColor: el.bgColor,
             fontFamily: el.fontFamily,
+            fontSize: el.fontSize,
           }),
           value_en: JSON.stringify({
             content: el.content,
@@ -528,6 +531,7 @@ const VisualEditorContent: React.FC = () => {
             textColor: el.textColor,
             bgColor: el.bgColor,
             fontFamily: el.fontFamily,
+            fontSize: el.fontSize,
           }),
         }, { onConflict: "section,key" });
       }
@@ -622,6 +626,7 @@ const VisualEditorContent: React.FC = () => {
 
 const renderElement = (element: GridElement) => {
     const fontClass = element.fontFamily || "";
+    const sizeClass = element.fontSize || "";
     
     switch (element.type) {
       case "heading":
@@ -630,7 +635,7 @@ const renderElement = (element: GridElement) => {
             value={element.content}
             onChange={(value) => updateElement(element.id, { content: value })}
             as="h2"
-            className={`text-3xl md:text-4xl lg:text-5xl font-semibold text-center ${fontClass}`}
+            className={`${sizeClass || "text-3xl md:text-4xl lg:text-5xl"} font-semibold text-center ${fontClass}`}
             textColor={element.textColor}
           />
         );
@@ -640,7 +645,7 @@ const renderElement = (element: GridElement) => {
             value={element.content}
             onChange={(value) => updateElement(element.id, { content: value })}
             as="p"
-            className={`text-lg text-muted-foreground text-center ${fontClass}`}
+            className={`${sizeClass || "text-lg"} text-muted-foreground text-center ${fontClass}`}
             textColor={element.textColor}
           />
         );
@@ -651,7 +656,7 @@ const renderElement = (element: GridElement) => {
             onChange={(value) => updateElement(element.id, { content: value })}
             as="p"
             multiline
-            className={`text-muted-foreground leading-relaxed ${fontClass}`}
+            className={`${sizeClass || "text-base"} text-muted-foreground leading-relaxed ${fontClass}`}
             textColor={element.textColor}
           />
         );
@@ -753,9 +758,11 @@ const renderElement = (element: GridElement) => {
                       textColor={element.textColor}
                       bgColor={element.bgColor}
                       fontFamily={element.fontFamily}
+                      fontSize={element.fontSize}
                       onTextColorChange={(color) => updateElement(element.id, { textColor: color })}
                       onBgColorChange={(color) => updateElement(element.id, { bgColor: color })}
                       onFontChange={(font) => updateElement(element.id, { fontFamily: font })}
+                      onFontSizeChange={(size) => updateElement(element.id, { fontSize: size })}
                     >
                       {renderElement(element)}
                     </GridItem>

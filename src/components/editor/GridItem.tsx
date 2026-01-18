@@ -1,7 +1,7 @@
 import React from "react";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { GripVertical, Trash2, Columns, Type, PaintBucket } from "lucide-react";
+import { GripVertical, Trash2, Columns, Type, PaintBucket, ALargeSmall } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ColorPicker } from "./ColorPicker";
 import {
@@ -14,9 +14,26 @@ import {
 
 const FONT_OPTIONS = [
   { value: "font-display", label: "Urbanist" },
-  { value: "font-sans", label: "Jost" },
-  { value: "font-serif", label: "Serif" },
-  { value: "font-mono", label: "Mono" },
+  { value: "font-sans", label: "Inter" },
+  { value: "font-playfair", label: "Playfair" },
+  { value: "font-montserrat", label: "Montserrat" },
+  { value: "font-lora", label: "Lora" },
+  { value: "font-roboto", label: "Roboto" },
+  { value: "font-opensans", label: "Open Sans" },
+  { value: "font-poppins", label: "Poppins" },
+  { value: "font-raleway", label: "Raleway" },
+  { value: "font-oswald", label: "Oswald" },
+];
+
+const FONT_SIZE_OPTIONS = [
+  { value: "text-sm", label: "Klein" },
+  { value: "text-base", label: "Normal" },
+  { value: "text-lg", label: "Groß" },
+  { value: "text-xl", label: "XL" },
+  { value: "text-2xl", label: "2XL" },
+  { value: "text-3xl", label: "3XL" },
+  { value: "text-4xl", label: "4XL" },
+  { value: "text-5xl", label: "5XL" },
 ];
 
 interface GridItemProps {
@@ -29,9 +46,11 @@ interface GridItemProps {
   textColor?: string;
   bgColor?: string;
   fontFamily?: string;
+  fontSize?: string;
   onTextColorChange?: (color: string) => void;
   onBgColorChange?: (color: string) => void;
   onFontChange?: (font: string) => void;
+  onFontSizeChange?: (size: string) => void;
 }
 
 export const GridItem: React.FC<GridItemProps> = ({
@@ -44,9 +63,11 @@ export const GridItem: React.FC<GridItemProps> = ({
   textColor,
   bgColor,
   fontFamily,
+  fontSize,
   onTextColorChange,
   onBgColorChange,
   onFontChange,
+  onFontSizeChange,
 }) => {
   const {
     attributes,
@@ -122,6 +143,25 @@ export const GridItem: React.FC<GridItemProps> = ({
                   {FONT_OPTIONS.map((font) => (
                     <SelectItem key={font.value} value={font.value} className="text-xs">
                       <span className={font.value}>{font.label}</span>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+
+          {/* Font Size Picker */}
+          {supportsTextColor && onFontSizeChange && (
+            <div className="flex items-center hover:bg-muted px-1" title="Schriftgröße">
+              <ALargeSmall className="w-3.5 h-3.5 text-muted-foreground mr-0.5" />
+              <Select value={fontSize || "text-base"} onValueChange={onFontSizeChange}>
+                <SelectTrigger className="h-6 w-14 text-xs border-0 bg-transparent p-0">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {FONT_SIZE_OPTIONS.map((size) => (
+                    <SelectItem key={size.value} value={size.value} className="text-xs">
+                      {size.label}
                     </SelectItem>
                   ))}
                 </SelectContent>
