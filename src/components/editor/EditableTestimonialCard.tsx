@@ -121,9 +121,9 @@ export const EditableTestimonialCard: React.FC<EditableTestimonialCardProps> = (
           </DialogHeader>
           <div className="space-y-4 overflow-y-auto flex-1 pr-2">
             <div className="flex items-start gap-4">
-              <div className="w-20 shrink-0">
+              <div className="w-28 sm:w-32 shrink-0">
                 <label className="text-sm font-medium mb-2 block">Profilbild</label>
-                <div className="w-20">
+                <div className="w-28 sm:w-32">
                   <ImageUploader
                     currentUrl={localTestimonial.avatar_url || null}
                     onImageChange={(url) =>
@@ -135,7 +135,7 @@ export const EditableTestimonialCard: React.FC<EditableTestimonialCardProps> = (
                   />
                 </div>
               </div>
-              <div className="flex-1 space-y-3">
+              <div className="flex-1 min-w-0 space-y-3">
                 <div>
                   <label className="text-sm font-medium">Name</label>
                   <Input
