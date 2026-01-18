@@ -625,9 +625,6 @@ const VisualEditorContent: React.FC = () => {
   }
 
 const renderElement = (element: GridElement) => {
-    const fontClass = element.fontFamily || "";
-    const sizeClass = element.fontSize || "";
-    
     switch (element.type) {
       case "heading":
         return (
@@ -635,8 +632,10 @@ const renderElement = (element: GridElement) => {
             value={element.content}
             onChange={(value) => updateElement(element.id, { content: value })}
             as="h2"
-            className={`${sizeClass || "text-3xl md:text-4xl lg:text-5xl"} font-semibold text-center ${fontClass}`}
+            className="font-semibold text-center"
             textColor={element.textColor}
+            fontFamily={element.fontFamily}
+            fontSize={element.fontSize || "48"}
           />
         );
       case "subheading":
@@ -645,8 +644,10 @@ const renderElement = (element: GridElement) => {
             value={element.content}
             onChange={(value) => updateElement(element.id, { content: value })}
             as="p"
-            className={`${sizeClass || "text-lg"} text-muted-foreground text-center ${fontClass}`}
+            className="text-muted-foreground text-center"
             textColor={element.textColor}
+            fontFamily={element.fontFamily}
+            fontSize={element.fontSize || "18"}
           />
         );
       case "text":
@@ -656,8 +657,10 @@ const renderElement = (element: GridElement) => {
             onChange={(value) => updateElement(element.id, { content: value })}
             as="p"
             multiline
-            className={`${sizeClass || "text-base"} text-muted-foreground leading-relaxed ${fontClass}`}
+            className="text-muted-foreground leading-relaxed"
             textColor={element.textColor}
+            fontFamily={element.fontFamily}
+            fontSize={element.fontSize || "16"}
           />
         );
       case "image":

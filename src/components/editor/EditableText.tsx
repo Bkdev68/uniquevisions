@@ -11,6 +11,8 @@ interface EditableTextProps {
   placeholder?: string;
   multiline?: boolean;
   textColor?: string;
+  fontFamily?: string;
+  fontSize?: string; // in pt, e.g. "24"
 }
 
 export const EditableText: React.FC<EditableTextProps> = ({
@@ -21,11 +23,20 @@ export const EditableText: React.FC<EditableTextProps> = ({
   placeholder = "Text eingeben...",
   multiline = false,
   textColor,
+  fontFamily,
+  fontSize,
 }) => {
   const { isEditMode } = useEditContext();
   const [isEditing, setIsEditing] = useState(false);
   const [localValue, setLocalValue] = useState(value);
   const inputRef = useRef<HTMLTextAreaElement | HTMLInputElement>(null);
+
+  // Build inline style
+  const textStyle: React.CSSProperties = {
+    color: textColor && textColor !== "transparent" ? textColor : undefined,
+    fontFamily: fontFamily || undefined,
+    fontSize: fontSize ? `${fontSize}pt` : undefined,
+  };
 
   useEffect(() => {
     setLocalValue(value);
@@ -60,7 +71,7 @@ export const EditableText: React.FC<EditableTextProps> = ({
     return (
       <Component 
         className={className}
-        style={{ color: textColor && textColor !== "transparent" ? textColor : undefined }}
+        style={textStyle}
       >
         {value || placeholder}
       </Component>
@@ -81,6 +92,7 @@ export const EditableText: React.FC<EditableTextProps> = ({
           "w-full bg-primary/10 border-2 border-primary/40 rounded-md px-2 py-1 focus:outline-none focus:border-primary transition-colors resize-none",
           className
         )}
+        style={textStyle}
         rows={multiline ? 3 : undefined}
       />
     );
@@ -97,7 +109,7 @@ export const EditableText: React.FC<EditableTextProps> = ({
             className,
             "group-hover:bg-primary/10 rounded px-1 -mx-1 transition-colors"
           )}
-          style={{ color: textColor && textColor !== "transparent" ? textColor : undefined }}
+          style={textStyle}
         >
           {value}
         </Component>
@@ -107,6 +119,7 @@ export const EditableText: React.FC<EditableTextProps> = ({
             "min-h-[2em] w-full border-2 border-dashed border-primary/30 rounded-md flex items-center justify-center text-muted-foreground italic hover:border-primary/60 hover:bg-primary/5 transition-colors py-2 px-4",
             className
           )}
+          style={textStyle}
         >
           {placeholder}
         </div>

@@ -1,39 +1,119 @@
-import React from "react";
+import React, { useState } from "react";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { GripVertical, Trash2, Columns, Type, PaintBucket, ALargeSmall } from "lucide-react";
+import { GripVertical, Trash2, Columns, Type, PaintBucket, Search } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ColorPicker } from "./ColorPicker";
+import { Input } from "@/components/ui/input";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Button } from "@/components/ui/button";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
+// Extended font list - 60+ fonts including system fonts
 const FONT_OPTIONS = [
-  { value: "font-display", label: "Urbanist" },
-  { value: "font-sans", label: "Inter" },
-  { value: "font-playfair", label: "Playfair" },
-  { value: "font-montserrat", label: "Montserrat" },
-  { value: "font-lora", label: "Lora" },
-  { value: "font-roboto", label: "Roboto" },
-  { value: "font-opensans", label: "Open Sans" },
-  { value: "font-poppins", label: "Poppins" },
-  { value: "font-raleway", label: "Raleway" },
-  { value: "font-oswald", label: "Oswald" },
-];
-
-const FONT_SIZE_OPTIONS = [
-  { value: "text-sm", label: "Klein" },
-  { value: "text-base", label: "Normal" },
-  { value: "text-lg", label: "Groß" },
-  { value: "text-xl", label: "XL" },
-  { value: "text-2xl", label: "2XL" },
-  { value: "text-3xl", label: "3XL" },
-  { value: "text-4xl", label: "4XL" },
-  { value: "text-5xl", label: "5XL" },
+  // Modern Sans-Serif
+  { value: "'Inter', sans-serif", label: "Inter" },
+  { value: "'Urbanist', sans-serif", label: "Urbanist" },
+  { value: "'Montserrat', sans-serif", label: "Montserrat" },
+  { value: "'Poppins', sans-serif", label: "Poppins" },
+  { value: "'Roboto', sans-serif", label: "Roboto" },
+  { value: "'Open Sans', sans-serif", label: "Open Sans" },
+  { value: "'Raleway', sans-serif", label: "Raleway" },
+  { value: "'Oswald', sans-serif", label: "Oswald" },
+  { value: "'Nunito', sans-serif", label: "Nunito" },
+  { value: "'Rubik', sans-serif", label: "Rubik" },
+  { value: "'Work Sans', sans-serif", label: "Work Sans" },
+  { value: "'Quicksand', sans-serif", label: "Quicksand" },
+  { value: "'Barlow', sans-serif", label: "Barlow" },
+  { value: "'Mulish', sans-serif", label: "Mulish" },
+  { value: "'Archivo', sans-serif", label: "Archivo" },
+  { value: "'Karla', sans-serif", label: "Karla" },
+  { value: "'Josefin Sans', sans-serif", label: "Josefin Sans" },
+  { value: "'Cabin', sans-serif", label: "Cabin" },
+  { value: "'Fira Sans', sans-serif", label: "Fira Sans" },
+  { value: "'PT Sans', sans-serif", label: "PT Sans" },
+  { value: "'Noto Sans', sans-serif", label: "Noto Sans" },
+  { value: "'Source Sans 3', sans-serif", label: "Source Sans" },
+  { value: "'Libre Franklin', sans-serif", label: "Libre Franklin" },
+  { value: "'Varela Round', sans-serif", label: "Varela Round" },
+  { value: "'Catamaran', sans-serif", label: "Catamaran" },
+  { value: "'Exo 2', sans-serif", label: "Exo 2" },
+  { value: "'Fredoka', sans-serif", label: "Fredoka" },
+  { value: "'Comfortaa', sans-serif", label: "Comfortaa" },
+  { value: "'Overpass', sans-serif", label: "Overpass" },
+  { value: "'Asap', sans-serif", label: "Asap" },
+  { value: "'IBM Plex Sans', sans-serif", label: "IBM Plex Sans" },
+  { value: "'DM Sans', sans-serif", label: "DM Sans" },
+  { value: "'Space Grotesk', sans-serif", label: "Space Grotesk" },
+  { value: "'Manrope', sans-serif", label: "Manrope" },
+  { value: "'Outfit', sans-serif", label: "Outfit" },
+  { value: "'Sora', sans-serif", label: "Sora" },
+  { value: "'Plus Jakarta Sans', sans-serif", label: "Plus Jakarta Sans" },
+  
+  // Serif
+  { value: "'Playfair Display', serif", label: "Playfair Display" },
+  { value: "'Lora', serif", label: "Lora" },
+  { value: "'Merriweather', serif", label: "Merriweather" },
+  { value: "'Libre Baskerville', serif", label: "Libre Baskerville" },
+  { value: "'Crimson Text', serif", label: "Crimson Text" },
+  { value: "'Cormorant Garamond', serif", label: "Cormorant Garamond" },
+  { value: "'PT Serif', serif", label: "PT Serif" },
+  { value: "'Noto Serif', serif", label: "Noto Serif" },
+  { value: "'Bitter', serif", label: "Bitter" },
+  { value: "'Arvo', serif", label: "Arvo" },
+  { value: "'IBM Plex Serif', serif", label: "IBM Plex Serif" },
+  { value: "'DM Serif Display', serif", label: "DM Serif Display" },
+  
+  // Display / Decorative
+  { value: "'Teko', sans-serif", label: "Teko" },
+  { value: "'Bebas Neue', sans-serif", label: "Bebas Neue" },
+  { value: "'Anton', sans-serif", label: "Anton" },
+  { value: "'Abril Fatface', serif", label: "Abril Fatface" },
+  { value: "'Righteous', sans-serif", label: "Righteous" },
+  { value: "'Alfa Slab One', serif", label: "Alfa Slab One" },
+  { value: "'Permanent Marker', cursive", label: "Permanent Marker" },
+  { value: "'Bangers', cursive", label: "Bangers" },
+  
+  // Script / Handwriting
+  { value: "'Pacifico', cursive", label: "Pacifico" },
+  { value: "'Dancing Script', cursive", label: "Dancing Script" },
+  { value: "'Satisfy', cursive", label: "Satisfy" },
+  { value: "'Great Vibes', cursive", label: "Great Vibes" },
+  { value: "'Sacramento', cursive", label: "Sacramento" },
+  { value: "'Lobster', cursive", label: "Lobster" },
+  
+  // System Fonts
+  { value: "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif", label: "System UI" },
+  { value: "Arial, Helvetica, sans-serif", label: "Arial" },
+  { value: "'Helvetica Neue', Helvetica, Arial, sans-serif", label: "Helvetica" },
+  { value: "Georgia, 'Times New Roman', serif", label: "Georgia" },
+  { value: "'Times New Roman', Times, serif", label: "Times New Roman" },
+  { value: "'Courier New', Courier, monospace", label: "Courier New" },
+  { value: "Verdana, Geneva, sans-serif", label: "Verdana" },
+  { value: "'Trebuchet MS', sans-serif", label: "Trebuchet MS" },
+  { value: "'Lucida Sans', sans-serif", label: "Lucida Sans" },
+  { value: "'Palatino Linotype', 'Book Antiqua', Palatino, serif", label: "Palatino" },
+  { value: "'Garamond', 'Times New Roman', serif", label: "Garamond" },
+  { value: "'Century Gothic', sans-serif", label: "Century Gothic" },
+  { value: "'Franklin Gothic Medium', sans-serif", label: "Franklin Gothic" },
+  { value: "'Segoe UI', Tahoma, sans-serif", label: "Segoe UI" },
+  { value: "Tahoma, Geneva, sans-serif", label: "Tahoma" },
+  { value: "'Gill Sans', sans-serif", label: "Gill Sans" },
+  { value: "'Optima', sans-serif", label: "Optima" },
+  { value: "'Futura', sans-serif", label: "Futura" },
+  { value: "'Avenir', sans-serif", label: "Avenir" },
+  { value: "'Baskerville', serif", label: "Baskerville" },
+  { value: "'Didot', serif", label: "Didot" },
+  { value: "'Bodoni MT', serif", label: "Bodoni" },
+  { value: "'Rockwell', serif", label: "Rockwell" },
+  { value: "'Copperplate', serif", label: "Copperplate" },
+  { value: "'Impact', sans-serif", label: "Impact" },
+  { value: "'Comic Sans MS', cursive", label: "Comic Sans" },
+  { value: "'Brush Script MT', cursive", label: "Brush Script" },
 ];
 
 interface GridItemProps {
@@ -69,6 +149,9 @@ export const GridItem: React.FC<GridItemProps> = ({
   onFontChange,
   onFontSizeChange,
 }) => {
+  const [fontSearch, setFontSearch] = useState("");
+  const [fontPickerOpen, setFontPickerOpen] = useState(false);
+
   const {
     attributes,
     listeners,
@@ -92,6 +175,24 @@ export const GridItem: React.FC<GridItemProps> = ({
   // Determine if this element type supports color changes
   const supportsTextColor = ["heading", "subheading", "text"].includes(type);
   const supportsBgColor = !["spacer", "contact-section"].includes(type);
+
+  // Filter fonts based on search
+  const filteredFonts = FONT_OPTIONS.filter((font) =>
+    font.label.toLowerCase().includes(fontSearch.toLowerCase())
+  );
+
+  // Get current font label
+  const currentFontLabel = FONT_OPTIONS.find((f) => f.value === fontFamily)?.label || "Urbanist";
+
+  // Parse fontSize (stored as "16" for 16pt)
+  const currentFontSize = fontSize ? parseInt(fontSize) : 16;
+
+  const handleFontSizeChange = (value: string) => {
+    const num = parseInt(value);
+    if (!isNaN(num) && num > 0 && num <= 200) {
+      onFontSizeChange?.(value);
+    }
+  };
 
   return (
     <div
@@ -134,38 +235,70 @@ export const GridItem: React.FC<GridItemProps> = ({
 
           {/* Font Picker */}
           {supportsTextColor && onFontChange && (
-            <div className="flex items-center hover:bg-muted px-1" title="Schriftart">
-              <Select value={fontFamily || "font-display"} onValueChange={onFontChange}>
-                <SelectTrigger className="h-6 w-20 text-xs border-0 bg-transparent p-0 pl-1">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {FONT_OPTIONS.map((font) => (
-                    <SelectItem key={font.value} value={font.value} className="text-xs">
-                      <span className={font.value}>{font.label}</span>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+            <Popover open={fontPickerOpen} onOpenChange={setFontPickerOpen}>
+              <PopoverTrigger asChild>
+                <button
+                  className="px-2 py-1.5 hover:bg-muted text-xs flex items-center gap-1 max-w-24 truncate"
+                  title="Schriftart"
+                >
+                  <Type className="w-3 h-3 text-muted-foreground shrink-0" />
+                  <span className="truncate">{currentFontLabel}</span>
+                </button>
+              </PopoverTrigger>
+              <PopoverContent className="w-64 p-2" align="center">
+                <div className="space-y-2">
+                  <div className="relative">
+                    <Search className="absolute left-2 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                    <Input
+                      placeholder="Schriftart suchen..."
+                      value={fontSearch}
+                      onChange={(e) => setFontSearch(e.target.value)}
+                      className="pl-8 h-8 text-sm"
+                    />
+                  </div>
+                  <ScrollArea className="h-64">
+                    <div className="space-y-0.5">
+                      {filteredFonts.map((font) => (
+                        <button
+                          key={font.value}
+                          onClick={() => {
+                            onFontChange(font.value);
+                            setFontPickerOpen(false);
+                            setFontSearch("");
+                          }}
+                          className={cn(
+                            "w-full text-left px-2 py-1.5 rounded text-sm hover:bg-muted transition-colors",
+                            fontFamily === font.value && "bg-primary/10 text-primary"
+                          )}
+                          style={{ fontFamily: font.value }}
+                        >
+                          {font.label}
+                        </button>
+                      ))}
+                      {filteredFonts.length === 0 && (
+                        <p className="text-sm text-muted-foreground text-center py-4">
+                          Keine Schriftart gefunden
+                        </p>
+                      )}
+                    </div>
+                  </ScrollArea>
+                </div>
+              </PopoverContent>
+            </Popover>
           )}
 
-          {/* Font Size Picker */}
+          {/* Font Size Input (pt) */}
           {supportsTextColor && onFontSizeChange && (
-            <div className="flex items-center hover:bg-muted px-1" title="Schriftgröße">
-              <ALargeSmall className="w-3.5 h-3.5 text-muted-foreground mr-0.5" />
-              <Select value={fontSize || "text-base"} onValueChange={onFontSizeChange}>
-                <SelectTrigger className="h-6 w-14 text-xs border-0 bg-transparent p-0">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {FONT_SIZE_OPTIONS.map((size) => (
-                    <SelectItem key={size.value} value={size.value} className="text-xs">
-                      {size.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+            <div className="flex items-center hover:bg-muted px-1" title="Schriftgröße (pt)">
+              <Input
+                type="number"
+                min="8"
+                max="200"
+                value={currentFontSize}
+                onChange={(e) => handleFontSizeChange(e.target.value)}
+                className="w-12 h-6 text-xs text-center border-0 bg-transparent p-0"
+              />
+              <span className="text-xs text-muted-foreground mr-1">pt</span>
             </div>
           )}
 
@@ -205,7 +338,7 @@ export const GridItem: React.FC<GridItemProps> = ({
       </div>
 
       {/* Content */}
-      <div 
+      <div
         className="p-2"
         style={{ color: textColor && textColor !== "transparent" ? textColor : undefined }}
       >
