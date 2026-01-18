@@ -48,6 +48,7 @@ export interface Testimonial {
   quote: string;
   language: string;
   display_order: number | null;
+  avatar_url?: string | null;
 }
 
 export const useTestimonials = (language: string = "de") => {

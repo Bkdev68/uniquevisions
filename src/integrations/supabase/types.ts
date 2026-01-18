@@ -208,6 +208,7 @@ export type Database = {
       }
       testimonials: {
         Row: {
+          avatar_url: string | null
           company: string | null
           created_at: string
           display_order: number | null
@@ -218,6 +219,7 @@ export type Database = {
           quote: string
         }
         Insert: {
+          avatar_url?: string | null
           company?: string | null
           created_at?: string
           display_order?: number | null
@@ -228,6 +230,7 @@ export type Database = {
           quote: string
         }
         Update: {
+          avatar_url?: string | null
           company?: string | null
           created_at?: string
           display_order?: number | null

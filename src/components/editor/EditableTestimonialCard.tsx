@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useEditContext } from "@/contexts/EditContext";
-import { Pencil, Trash2, Quote } from "lucide-react";
+import { Pencil, Trash2, Quote, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -10,6 +10,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { ImageUploader } from "./ImageUploader";
 import type { Testimonial } from "@/hooks/useContent";
 
 interface EditableTestimonialCardProps {
@@ -27,9 +28,31 @@ export const EditableTestimonialCard: React.FC<EditableTestimonialCardProps> = (
   const [isEditing, setIsEditing] = useState(false);
   const [localTestimonial, setLocalTestimonial] = useState(testimonial);
 
+  // Sync local state when testimonial prop changes
+  React.useEffect(() => {
+    setLocalTestimonial(testimonial);
+  }, [testimonial]);
+
   const handleSave = () => {
     onUpdate(localTestimonial);
     setIsEditing(false);
+  };
+
+  const renderAvatar = () => {
+    if (testimonial.avatar_url) {
+      return (
+        <img
+          src={testimonial.avatar_url}
+          alt={testimonial.name}
+          className="w-10 h-10 rounded-full object-cover"
+        />
+      );
+    }
+    return (
+      <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
+        <User className="w-5 h-5 text-primary" />
+      </div>
+    );
   };
 
   if (!isEditMode) {
@@ -39,11 +62,14 @@ export const EditableTestimonialCard: React.FC<EditableTestimonialCardProps> = (
         <p className="text-foreground mb-6 leading-relaxed">
           "{testimonial.quote}"
         </p>
-        <div>
-          <p className="font-semibold text-foreground">{testimonial.name}</p>
-          {testimonial.company && (
-            <p className="text-sm text-muted-foreground">{testimonial.company}</p>
-          )}
+        <div className="flex items-center gap-3">
+          {renderAvatar()}
+          <div>
+            <p className="font-semibold text-foreground">{testimonial.name}</p>
+            {testimonial.company && (
+              <p className="text-sm text-muted-foreground">{testimonial.company}</p>
+            )}
+          </div>
         </div>
       </div>
     );
@@ -59,11 +85,14 @@ export const EditableTestimonialCard: React.FC<EditableTestimonialCardProps> = (
         <p className="text-foreground mb-6 leading-relaxed">
           "{testimonial.quote}"
         </p>
-        <div>
-          <p className="font-semibold text-foreground">{testimonial.name}</p>
-          {testimonial.company && (
-            <p className="text-sm text-muted-foreground">{testimonial.company}</p>
-          )}
+        <div className="flex items-center gap-3">
+          {renderAvatar()}
+          <div>
+            <p className="font-semibold text-foreground">{testimonial.name}</p>
+            {testimonial.company && (
+              <p className="text-sm text-muted-foreground">{testimonial.company}</p>
+            )}
+          </div>
         </div>
 
         {/* Edit overlay */}
@@ -91,6 +120,18 @@ export const EditableTestimonialCard: React.FC<EditableTestimonialCardProps> = (
             <DialogTitle>Testimonial bearbeiten</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
+            <div>
+              <label className="text-sm font-medium mb-2 block">Profilbild</label>
+              <ImageUploader
+                currentUrl={localTestimonial.avatar_url || null}
+                onImageChange={(url) =>
+                  setLocalTestimonial({ ...localTestimonial, avatar_url: url || null })
+                }
+                folder="avatars"
+                aspectRatio="1/1"
+                placeholder="Profilbild hochladen"
+              />
+            </div>
             <div>
               <label className="text-sm font-medium">Name</label>
               <Input
