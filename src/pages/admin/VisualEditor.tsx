@@ -335,7 +335,8 @@ const VisualEditorContent: React.FC = () => {
     setHistory((prev) => prev.slice(0, -1));
     setGridElements(previousState);
     markChanged();
-  }, [history, markChanged]);
+    toast({ title: "Rückgängig", description: "Letzte Änderung wurde rückgängig gemacht." });
+  }, [history, markChanged, toast]);
 
   const handleDragEnd = useCallback((event: DragEndEvent) => {
     const { active, over } = event;
@@ -585,6 +586,29 @@ const VisualEditorContent: React.FC = () => {
     setGridElements(createInitialGrid(siteContent, projects, testimonials));
     setHasChanges(false);
   }, [siteContent, projects, testimonials]);
+
+  // Keyboard shortcuts: Ctrl+Z / Cmd+Z for undo, Ctrl+S / Cmd+S for save
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
+      const modifierKey = isMac ? e.metaKey : e.ctrlKey;
+      
+      if (modifierKey && e.key === 'z' && !e.shiftKey) {
+        e.preventDefault();
+        handleUndo();
+      }
+      
+      if (modifierKey && e.key === 's') {
+        e.preventDefault();
+        if (hasChanges) {
+          saveMutation.mutate();
+        }
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [handleUndo, hasChanges, saveMutation]);
 
   const isLoading = projectsLoading || testimonialsLoading || contentLoading;
 
