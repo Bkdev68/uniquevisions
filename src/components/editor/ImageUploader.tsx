@@ -188,7 +188,7 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
       </div>
 
       {/* Actions */}
-      <div className="flex gap-1">
+      <div className="flex w-full gap-1">
         <input
           ref={fileInputRef}
           type="file"
@@ -196,26 +196,26 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
           className="hidden"
           onChange={handleFileSelect}
         />
-        
+
         <Button
           type="button"
           variant="outline"
           size="sm"
           onClick={() => fileInputRef.current?.click()}
           disabled={isUploading}
-          className="flex-1 h-7 text-xs px-2"
+          className="flex-1 h-7 min-w-0 overflow-hidden text-xs px-2"
         >
-          <Upload className="w-3 h-3 mr-1" />
-          Hochladen
+          <Upload className="w-3 h-3 mr-1 shrink-0" />
+          <span className="truncate">Hochladen</span>
         </Button>
-        
+
         <Button
           type="button"
           variant="outline"
           size="sm"
           onClick={() => setShowUrlInput(!showUrlInput)}
           disabled={isUploading}
-          className="h-7 w-7 p-0"
+          className="h-7 w-7 p-0 shrink-0"
         >
           <Link className="w-3 h-3" />
         </Button>
@@ -223,15 +223,15 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
 
       {/* URL Input */}
       {showUrlInput && (
-        <div className="flex gap-1">
+        <div className="flex w-full gap-1">
           <Input
             value={urlInput}
             onChange={(e) => setUrlInput(e.target.value)}
             placeholder="https://..."
-            className="flex-1 h-7 text-xs"
+            className="flex-1 h-7 min-w-0 text-xs"
             onKeyDown={(e) => e.key === "Enter" && handleUrlSubmit()}
           />
-          <Button size="sm" onClick={handleUrlSubmit} className="h-7 px-2">
+          <Button size="sm" onClick={handleUrlSubmit} className="h-7 px-2 shrink-0">
             OK
           </Button>
         </div>
