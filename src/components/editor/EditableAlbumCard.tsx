@@ -197,43 +197,41 @@ export const EditableAlbumCard: React.FC<EditableAlbumCardProps> = ({
                 </Button>
               </div>
               
-              <div className="space-y-3 max-h-64 overflow-y-auto">
+              <div className="space-y-4 max-h-96 overflow-y-auto">
                 {localProject.gallery.map((image, index) => (
-                  <div key={index} className="flex gap-3 items-start p-3 bg-muted/50 rounded-lg">
-                    {image.url && (
-                      <img
-                        src={image.url}
-                        alt={image.caption || `Bild ${index + 1}`}
-                        className="w-16 h-16 object-cover rounded flex-shrink-0"
-                      />
-                    )}
-                    <div className="flex-1 space-y-2">
-                      <Input
-                        value={image.url}
-                        onChange={(e) => updateGalleryImage(index, "url", e.target.value)}
-                        placeholder="Bild-URL"
-                        className="text-sm"
-                      />
-                      <Input
-                        value={image.caption || ""}
-                        onChange={(e) => updateGalleryImage(index, "caption", e.target.value)}
-                        placeholder="Bildunterschrift (optional)"
-                        className="text-sm"
-                      />
+                  <div key={index} className="p-3 bg-muted/50 rounded-lg space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium">Bild {index + 1}</span>
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        onClick={() => removeGalleryImage(index)}
+                        className="h-8 w-8"
+                      >
+                        <X className="w-4 h-4 text-destructive" />
+                      </Button>
                     </div>
-                    <Button
-                      size="icon"
-                      variant="ghost"
-                      onClick={() => removeGalleryImage(index)}
-                      className="flex-shrink-0"
-                    >
-                      <X className="w-4 h-4 text-destructive" />
-                    </Button>
+                    
+                    <ImageUploader
+                      currentUrl={image.url}
+                      onImageChange={(url) => updateGalleryImage(index, "url", url)}
+                      folder="gallery"
+                      aspectRatio="16/9"
+                      placeholder="Galerie-Bild hochladen"
+                    />
+                    
+                    <Input
+                      value={image.caption || ""}
+                      onChange={(e) => updateGalleryImage(index, "caption", e.target.value)}
+                      placeholder="Bildunterschrift (optional)"
+                      className="text-sm"
+                    />
                   </div>
                 ))}
                 
                 {localProject.gallery.length === 0 && (
-                  <div className="text-center py-8 text-muted-foreground">
+                  <div className="text-center py-8 text-muted-foreground border-2 border-dashed border-muted rounded-lg">
+                    <Images className="w-8 h-8 mx-auto mb-2 opacity-50" />
                     Noch keine Bilder in diesem Album
                   </div>
                 )}
