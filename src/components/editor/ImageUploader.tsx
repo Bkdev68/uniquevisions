@@ -85,17 +85,7 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
       return;
     }
 
-    // Validate file size (20MB max before compression)
-    if (file.size > 20 * 1024 * 1024) {
-      toast({
-        title: "Datei zu groß",
-        description: "Die maximale Dateigröße beträgt 20MB.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    // Compress image if larger than 2MB
+    // Compress image if larger than 2MB for faster uploads
     let fileToUpload: File | Blob = file;
     if (file.size > 2 * 1024 * 1024) {
       try {
