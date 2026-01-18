@@ -6,6 +6,46 @@ import { Upload, Link, Loader2, X, Image as ImageIcon } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 
+// Compress image to reduce file size
+const compressImage = (file: File, maxWidth = 1920, quality = 0.8): Promise<Blob> => {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement("canvas");
+      let { width, height } = img;
+      
+      if (width > maxWidth) {
+        height = (height * maxWidth) / width;
+        width = maxWidth;
+      }
+      
+      canvas.width = width;
+      canvas.height = height;
+      
+      const ctx = canvas.getContext("2d");
+      if (!ctx) {
+        reject(new Error("Could not get canvas context"));
+        return;
+      }
+      
+      ctx.drawImage(img, 0, 0, width, height);
+      canvas.toBlob(
+        (blob) => {
+          if (blob) {
+            resolve(blob);
+          } else {
+            reject(new Error("Could not compress image"));
+          }
+        },
+        "image/jpeg",
+        quality
+      );
+    };
+    img.onerror = reject;
+    img.src = URL.createObjectURL(file);
+  });
+};
+
 interface ImageUploaderProps {
   currentUrl: string | null;
   onImageChange: (url: string) => void;
@@ -45,27 +85,38 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
       return;
     }
 
-    // Validate file size (5MB max)
-    if (file.size > 5 * 1024 * 1024) {
+    // Validate file size (20MB max before compression)
+    if (file.size > 20 * 1024 * 1024) {
       toast({
         title: "Datei zu groß",
-        description: "Die maximale Dateigröße beträgt 5MB.",
+        description: "Die maximale Dateigröße beträgt 20MB.",
         variant: "destructive",
       });
       return;
     }
 
+    // Compress image if larger than 2MB
+    let fileToUpload: File | Blob = file;
+    if (file.size > 2 * 1024 * 1024) {
+      try {
+        fileToUpload = await compressImage(file);
+      } catch (error) {
+        console.error("Compression error:", error);
+        // Continue with original file if compression fails
+      }
+    }
+
     setIsUploading(true);
 
     try {
-      // Generate unique filename
-      const fileExt = file.name.split(".").pop();
+      // Generate unique filename (use jpg for compressed images)
+      const fileExt = fileToUpload === file ? file.name.split(".").pop() : "jpg";
       const fileName = `${folder}/${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
 
       // Upload to Supabase Storage
       const { error: uploadError } = await supabase.storage
         .from(bucket)
-        .upload(fileName, file, {
+        .upload(fileName, fileToUpload, {
           cacheControl: "3600",
           upsert: false,
         });
