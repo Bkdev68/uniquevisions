@@ -418,6 +418,25 @@ const VisualEditorContent: React.FC = () => {
     markChanged();
   }, [markChanged, saveToHistory]);
 
+  // Convert spacer to text element
+  const convertToText = useCallback((id: string) => {
+    saveToHistory();
+    setGridElements((prev) => {
+      return prev.map((el) => {
+        if (el.id === id) {
+          return {
+            ...el,
+            type: "text" as GridElementType,
+            content: "",
+            colSpan: el.colSpan || 1,
+          };
+        }
+        return el;
+      });
+    });
+    markChanged();
+  }, [markChanged, saveToHistory]);
+
   // Save mutation
   const saveMutation = useMutation({
     mutationFn: async () => {
@@ -646,7 +665,19 @@ const renderElement = (element: GridElement) => {
           />
         );
       case "spacer":
-        return <div className="h-12 md:h-20" />;
+        return (
+          <div className="h-12 md:h-20 flex items-center justify-center">
+            {isEditMode && (
+              <button
+                onClick={() => convertToText(element.id)}
+                className="flex items-center gap-2 px-3 py-2 text-sm text-muted-foreground hover:text-foreground border-2 border-dashed border-muted-foreground/30 hover:border-primary/60 hover:bg-primary/5 rounded-md transition-colors"
+              >
+                <Type className="w-4 h-4" />
+                Text hinzufügen
+              </button>
+            )}
+          </div>
+        );
       case "contact-section":
         return <Contact />;
       default:
