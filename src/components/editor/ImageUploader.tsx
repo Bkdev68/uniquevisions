@@ -165,14 +165,13 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
               alt="Preview"
               className="w-full h-full object-cover"
             />
-            <Button
-              size="icon"
-              variant="destructive"
-              className="absolute top-1 right-1 h-6 w-6"
+            <button
+              type="button"
+              className="absolute top-0.5 right-0.5 h-5 w-5 rounded-full bg-destructive text-destructive-foreground flex items-center justify-center hover:bg-destructive/90"
               onClick={handleRemoveImage}
             >
               <X className="w-3 h-3" />
-            </Button>
+            </button>
           </>
         ) : (
           <div className="w-full h-full flex flex-col items-center justify-center text-muted-foreground p-2">
