@@ -4,6 +4,20 @@ import { CSS } from "@dnd-kit/utilities";
 import { GripVertical, Trash2, Columns, Type, PaintBucket } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ColorPicker } from "./ColorPicker";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+
+const FONT_OPTIONS = [
+  { value: "font-display", label: "Urbanist" },
+  { value: "font-sans", label: "Jost" },
+  { value: "font-serif", label: "Serif" },
+  { value: "font-mono", label: "Mono" },
+];
 
 interface GridItemProps {
   id: string;
@@ -14,8 +28,10 @@ interface GridItemProps {
   type: string;
   textColor?: string;
   bgColor?: string;
+  fontFamily?: string;
   onTextColorChange?: (color: string) => void;
   onBgColorChange?: (color: string) => void;
+  onFontChange?: (font: string) => void;
 }
 
 export const GridItem: React.FC<GridItemProps> = ({
@@ -27,8 +43,10 @@ export const GridItem: React.FC<GridItemProps> = ({
   type,
   textColor,
   bgColor,
+  fontFamily,
   onTextColorChange,
   onBgColorChange,
+  onFontChange,
 }) => {
   const {
     attributes,
@@ -91,6 +109,24 @@ export const GridItem: React.FC<GridItemProps> = ({
               <Columns className="w-3.5 h-3.5 text-muted-foreground" />
               <span className="text-xs text-muted-foreground pr-0.5">{colSpan}</span>
             </button>
+          )}
+
+          {/* Font Picker */}
+          {supportsTextColor && onFontChange && (
+            <div className="flex items-center hover:bg-muted px-1" title="Schriftart">
+              <Select value={fontFamily || "font-display"} onValueChange={onFontChange}>
+                <SelectTrigger className="h-6 w-20 text-xs border-0 bg-transparent p-0 pl-1">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {FONT_OPTIONS.map((font) => (
+                    <SelectItem key={font.value} value={font.value} className="text-xs">
+                      <span className={font.value}>{font.label}</span>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
           )}
 
           {/* Text Color Picker */}

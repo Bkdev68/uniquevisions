@@ -55,6 +55,7 @@ export interface GridElement {
   colSpan?: 1 | 2 | 3;
   textColor?: string;
   bgColor?: string;
+  fontFamily?: string;
   data?: any; // For complex elements like projects/testimonials
 }
 
@@ -128,6 +129,7 @@ const createInitialGrid = (
                 colSpan: savedContent.colSpan || layoutItem.colSpan || 1,
                 textColor: savedContent.textColor,
                 bgColor: savedContent.bgColor,
+                fontFamily: savedContent.fontFamily,
               });
             } catch {
               // Fallback: use layout info only
@@ -287,6 +289,10 @@ const VisualEditorContent: React.FC = () => {
   const [hasChanges, setHasChanges] = useState(false);
   const [selectedAlbum, setSelectedAlbum] = useState<Project | null>(null);
   const [showAddMenu, setShowAddMenu] = useState(false);
+  
+  // Undo history
+  const [history, setHistory] = useState<GridElement[][]>([]);
+  const maxHistorySize = 50;
 
   // DnD sensors
   const sensors = useSensors(
@@ -309,9 +315,32 @@ const VisualEditorContent: React.FC = () => {
 
   const markChanged = useCallback(() => setHasChanges(true), []);
 
+  // Save current state to history before making changes
+  const saveToHistory = useCallback(() => {
+    setHistory((prev) => {
+      const newHistory = [...prev, JSON.parse(JSON.stringify(gridElements))];
+      // Limit history size
+      if (newHistory.length > maxHistorySize) {
+        return newHistory.slice(-maxHistorySize);
+      }
+      return newHistory;
+    });
+  }, [gridElements, maxHistorySize]);
+
+  // Undo last change
+  const handleUndo = useCallback(() => {
+    if (history.length === 0) return;
+    
+    const previousState = history[history.length - 1];
+    setHistory((prev) => prev.slice(0, -1));
+    setGridElements(previousState);
+    markChanged();
+  }, [history, markChanged]);
+
   const handleDragEnd = useCallback((event: DragEndEvent) => {
     const { active, over } = event;
     if (over && active.id !== over.id) {
+      saveToHistory();
       setGridElements((prev) => {
         const oldIndex = prev.findIndex((e) => e.id === active.id);
         const newIndex = prev.findIndex((e) => e.id === over.id);
@@ -319,21 +348,24 @@ const VisualEditorContent: React.FC = () => {
       });
       markChanged();
     }
-  }, [markChanged]);
+  }, [markChanged, saveToHistory]);
 
   const updateElement = useCallback((id: string, updates: Partial<GridElement>) => {
+    saveToHistory();
     setGridElements((prev) =>
       prev.map((el) => (el.id === id ? { ...el, ...updates } : el))
     );
     markChanged();
-  }, [markChanged]);
+  }, [markChanged, saveToHistory]);
 
   const deleteElement = useCallback((id: string) => {
+    saveToHistory();
     setGridElements((prev) => prev.filter((el) => el.id !== id));
     markChanged();
-  }, [markChanged]);
+  }, [markChanged, saveToHistory]);
 
   const addElement = useCallback((type: GridElementType) => {
+    saveToHistory();
     const newElement: GridElement = {
       id: `el-${Date.now()}`,
       type,
@@ -370,9 +402,10 @@ const VisualEditorContent: React.FC = () => {
     setGridElements((prev) => [...prev, newElement]);
     setShowAddMenu(false);
     markChanged();
-  }, [markChanged]);
+  }, [markChanged, saveToHistory]);
 
   const cycleColSpan = useCallback((id: string) => {
+    saveToHistory();
     setGridElements((prev) => {
       return prev.map((el) => {
         if (el.id === id) {
@@ -383,7 +416,7 @@ const VisualEditorContent: React.FC = () => {
       });
     });
     markChanged();
-  }, [markChanged]);
+  }, [markChanged, saveToHistory]);
 
   // Save mutation
   const saveMutation = useMutation({
@@ -466,6 +499,7 @@ const VisualEditorContent: React.FC = () => {
             colSpan: el.colSpan,
             textColor: el.textColor,
             bgColor: el.bgColor,
+            fontFamily: el.fontFamily,
           }),
           value_en: JSON.stringify({
             content: el.content,
@@ -473,6 +507,7 @@ const VisualEditorContent: React.FC = () => {
             colSpan: el.colSpan,
             textColor: el.textColor,
             bgColor: el.bgColor,
+            fontFamily: el.fontFamily,
           }),
         }, { onConflict: "section,key" });
       }
@@ -543,6 +578,8 @@ const VisualEditorContent: React.FC = () => {
   }
 
 const renderElement = (element: GridElement) => {
+    const fontClass = element.fontFamily || "";
+    
     switch (element.type) {
       case "heading":
         return (
@@ -550,7 +587,7 @@ const renderElement = (element: GridElement) => {
             value={element.content}
             onChange={(value) => updateElement(element.id, { content: value })}
             as="h2"
-            className="text-3xl md:text-4xl lg:text-5xl font-display font-semibold text-center"
+            className={`text-3xl md:text-4xl lg:text-5xl font-semibold text-center ${fontClass}`}
             textColor={element.textColor}
           />
         );
@@ -560,7 +597,7 @@ const renderElement = (element: GridElement) => {
             value={element.content}
             onChange={(value) => updateElement(element.id, { content: value })}
             as="p"
-            className="text-lg text-muted-foreground text-center"
+            className={`text-lg text-muted-foreground text-center ${fontClass}`}
             textColor={element.textColor}
           />
         );
@@ -571,7 +608,7 @@ const renderElement = (element: GridElement) => {
             onChange={(value) => updateElement(element.id, { content: value })}
             as="p"
             multiline
-            className="text-muted-foreground leading-relaxed"
+            className={`text-muted-foreground leading-relaxed ${fontClass}`}
             textColor={element.textColor}
           />
         );
@@ -660,8 +697,10 @@ const renderElement = (element: GridElement) => {
                       type={element.type}
                       textColor={element.textColor}
                       bgColor={element.bgColor}
+                      fontFamily={element.fontFamily}
                       onTextColorChange={(color) => updateElement(element.id, { textColor: color })}
                       onBgColorChange={(color) => updateElement(element.id, { bgColor: color })}
+                      onFontChange={(font) => updateElement(element.id, { fontFamily: font })}
                     >
                       {renderElement(element)}
                     </GridItem>
@@ -727,7 +766,9 @@ const renderElement = (element: GridElement) => {
       <EditorToolbar
         onSave={() => saveMutation.mutate()}
         onReset={handleReset}
+        onUndo={handleUndo}
         hasChanges={hasChanges}
+        canUndo={history.length > 0}
       />
 
       {/* Album Viewer */}

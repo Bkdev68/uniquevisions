@@ -1,18 +1,22 @@
 import React from "react";
 import { useEditContext } from "@/contexts/EditContext";
 import { Button } from "@/components/ui/button";
-import { Save, Loader2, Eye, Pencil, RotateCcw } from "lucide-react";
+import { Save, Loader2, Eye, Pencil, RotateCcw, Undo2 } from "lucide-react";
 
 interface EditorToolbarProps {
   onSave: () => void;
   onReset?: () => void;
+  onUndo?: () => void;
   hasChanges: boolean;
+  canUndo?: boolean;
 }
 
 export const EditorToolbar: React.FC<EditorToolbarProps> = ({
   onSave,
   onReset,
+  onUndo,
   hasChanges,
+  canUndo = false,
 }) => {
   const { isEditMode, setIsEditMode, isSaving } = useEditContext();
 
@@ -36,6 +40,23 @@ export const EditorToolbar: React.FC<EditorToolbarProps> = ({
           </>
         )}
       </Button>
+
+      {isEditMode && canUndo && onUndo && (
+        <>
+          <div className="w-px h-6 bg-border" />
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onUndo}
+            disabled={isSaving}
+            className="rounded-full"
+            title="Rückgängig (Strg+Z)"
+          >
+            <Undo2 className="w-4 h-4 mr-2" />
+            Rückgängig
+          </Button>
+        </>
+      )}
 
       {hasChanges && (
         <>
@@ -75,7 +96,7 @@ export const EditorToolbar: React.FC<EditorToolbarProps> = ({
         </>
       )}
 
-      {!hasChanges && isEditMode && (
+      {!hasChanges && isEditMode && !canUndo && (
         <span className="text-sm text-muted-foreground px-2">
           Klicke auf Elemente zum Bearbeiten
         </span>
