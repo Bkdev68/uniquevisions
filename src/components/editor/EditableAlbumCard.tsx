@@ -1,10 +1,12 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useRef } from "react";
 import { useEditContext } from "@/contexts/EditContext";
 import { motion } from "framer-motion";
-import { Pencil, Trash2, GripVertical, Images, Plus, X } from "lucide-react";
+import { Pencil, Trash2, GripVertical, Images, Plus, X, Upload, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 import {
   Dialog,
   DialogContent,
@@ -122,8 +124,12 @@ export const EditableAlbumCard: React.FC<EditableAlbumCardProps> = ({
   onDelete,
 }) => {
   const { isEditMode } = useEditContext();
+  const { toast } = useToast();
   const [isEditing, setIsEditing] = useState(false);
   const [localProject, setLocalProject] = useState(project);
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const multipleInputRef = useRef<HTMLInputElement>(null);
 
   // DnD sensors
   const sensors = useSensors(
@@ -149,6 +155,112 @@ export const EditableAlbumCard: React.FC<EditableAlbumCardProps> = ({
     setLocalProject({
       ...localProject,
       gallery: [...localProject.gallery, { url: "", caption: "" }],
+    });
+  };
+
+  // Handle multiple file upload
+  const handleMultipleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    setIsUploading(true);
+    setUploadProgress(0);
+
+    const newImages: GalleryImage[] = [];
+    const totalFiles = files.length;
+
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      
+      if (!file.type.startsWith("image/")) {
+        continue;
+      }
+
+      try {
+        // Compress large images
+        let fileToUpload: File | Blob = file;
+        if (file.size > 2 * 1024 * 1024) {
+          fileToUpload = await compressImage(file);
+        }
+
+        const fileExt = fileToUpload === file ? file.name.split(".").pop() : "jpg";
+        const fileName = `gallery/${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+
+        const { error: uploadError } = await supabase.storage
+          .from("project-images")
+          .upload(fileName, fileToUpload, {
+            cacheControl: "3600",
+            upsert: false,
+          });
+
+        if (uploadError) throw uploadError;
+
+        const { data: urlData } = supabase.storage
+          .from("project-images")
+          .getPublicUrl(fileName);
+
+        newImages.push({ url: urlData.publicUrl, caption: "" });
+        setUploadProgress(Math.round(((i + 1) / totalFiles) * 100));
+      } catch (error) {
+        console.error("Upload error:", error);
+      }
+    }
+
+    if (newImages.length > 0) {
+      setLocalProject((prev) => ({
+        ...prev,
+        gallery: [...prev.gallery, ...newImages],
+      }));
+      toast({
+        title: `${newImages.length} Bild${newImages.length > 1 ? "er" : ""} hochgeladen`,
+        description: "Die Bilder wurden zur Galerie hinzugefügt.",
+      });
+    }
+
+    setIsUploading(false);
+    setUploadProgress(0);
+    if (multipleInputRef.current) {
+      multipleInputRef.current.value = "";
+    }
+  };
+
+  // Compress image helper
+  const compressImage = (file: File, maxWidth = 1920, quality = 0.8): Promise<Blob> => {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        let { width, height } = img;
+        
+        if (width > maxWidth) {
+          height = (height * maxWidth) / width;
+          width = maxWidth;
+        }
+        
+        canvas.width = width;
+        canvas.height = height;
+        
+        const ctx = canvas.getContext("2d");
+        if (!ctx) {
+          reject(new Error("Could not get canvas context"));
+          return;
+        }
+        
+        ctx.drawImage(img, 0, 0, width, height);
+        canvas.toBlob(
+          (blob) => {
+            if (blob) {
+              resolve(blob);
+            } else {
+              reject(new Error("Could not compress image"));
+            }
+          },
+          "image/jpeg",
+          quality
+        );
+      };
+      img.onerror = reject;
+      img.src = URL.createObjectURL(file);
     });
   };
 
@@ -329,10 +441,38 @@ export const EditableAlbumCard: React.FC<EditableAlbumCardProps> = ({
                     </span>
                   )}
                 </label>
-                <Button size="sm" variant="outline" onClick={addGalleryImage}>
-                  <Plus className="w-4 h-4 mr-1" />
-                  Bild hinzufügen
-                </Button>
+                <div className="flex gap-2">
+                  <input
+                    ref={multipleInputRef}
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    className="hidden"
+                    onChange={handleMultipleUpload}
+                  />
+                  <Button 
+                    size="sm" 
+                    variant="outline" 
+                    onClick={() => multipleInputRef.current?.click()}
+                    disabled={isUploading}
+                  >
+                    {isUploading ? (
+                      <>
+                        <Loader2 className="w-4 h-4 mr-1 animate-spin" />
+                        {uploadProgress}%
+                      </>
+                    ) : (
+                      <>
+                        <Upload className="w-4 h-4 mr-1" />
+                        Mehrere hochladen
+                      </>
+                    )}
+                  </Button>
+                  <Button size="sm" variant="outline" onClick={addGalleryImage}>
+                    <Plus className="w-4 h-4 mr-1" />
+                    Einzeln
+                  </Button>
+                </div>
               </div>
               
               <div className="space-y-3 max-h-96 overflow-y-auto pr-1">
