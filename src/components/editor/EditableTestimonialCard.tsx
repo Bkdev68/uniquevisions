@@ -115,40 +115,46 @@ export const EditableTestimonialCard: React.FC<EditableTestimonialCardProps> = (
       </div>
 
       <Dialog open={isEditing} onOpenChange={setIsEditing}>
-        <DialogContent className="max-w-lg">
+        <DialogContent className="max-w-md max-h-[85vh] flex flex-col">
           <DialogHeader>
             <DialogTitle>Testimonial bearbeiten</DialogTitle>
           </DialogHeader>
-          <div className="space-y-4">
-            <div>
-              <label className="text-sm font-medium mb-2 block">Profilbild</label>
-              <ImageUploader
-                currentUrl={localTestimonial.avatar_url || null}
-                onImageChange={(url) =>
-                  setLocalTestimonial({ ...localTestimonial, avatar_url: url || null })
-                }
-                folder="avatars"
-                aspectRatio="1/1"
-                placeholder="Profilbild hochladen"
-              />
-            </div>
-            <div>
-              <label className="text-sm font-medium">Name</label>
-              <Input
-                value={localTestimonial.name}
-                onChange={(e) =>
-                  setLocalTestimonial({ ...localTestimonial, name: e.target.value })
-                }
-              />
-            </div>
-            <div>
-              <label className="text-sm font-medium">Unternehmen</label>
-              <Input
-                value={localTestimonial.company || ""}
-                onChange={(e) =>
-                  setLocalTestimonial({ ...localTestimonial, company: e.target.value })
-                }
-              />
+          <div className="space-y-4 overflow-y-auto flex-1 pr-2">
+            <div className="flex items-start gap-4">
+              <div className="w-20 shrink-0">
+                <label className="text-sm font-medium mb-2 block">Profilbild</label>
+                <div className="w-20">
+                  <ImageUploader
+                    currentUrl={localTestimonial.avatar_url || null}
+                    onImageChange={(url) =>
+                      setLocalTestimonial({ ...localTestimonial, avatar_url: url || null })
+                    }
+                    folder="avatars"
+                    aspectRatio="1/1"
+                    placeholder="Hochladen"
+                  />
+                </div>
+              </div>
+              <div className="flex-1 space-y-3">
+                <div>
+                  <label className="text-sm font-medium">Name</label>
+                  <Input
+                    value={localTestimonial.name}
+                    onChange={(e) =>
+                      setLocalTestimonial({ ...localTestimonial, name: e.target.value })
+                    }
+                  />
+                </div>
+                <div>
+                  <label className="text-sm font-medium">Unternehmen</label>
+                  <Input
+                    value={localTestimonial.company || ""}
+                    onChange={(e) =>
+                      setLocalTestimonial({ ...localTestimonial, company: e.target.value })
+                    }
+                  />
+                </div>
+              </div>
             </div>
             <div>
               <label className="text-sm font-medium">Zitat</label>
@@ -157,15 +163,15 @@ export const EditableTestimonialCard: React.FC<EditableTestimonialCardProps> = (
                 onChange={(e) =>
                   setLocalTestimonial({ ...localTestimonial, quote: e.target.value })
                 }
-                rows={4}
+                rows={3}
               />
             </div>
-            <div className="flex gap-2 justify-end">
-              <Button variant="outline" onClick={() => setIsEditing(false)}>
-                Abbrechen
-              </Button>
-              <Button onClick={handleSave}>Speichern</Button>
-            </div>
+          </div>
+          <div className="flex gap-2 justify-end pt-4 border-t mt-4">
+            <Button variant="outline" onClick={() => setIsEditing(false)}>
+              Abbrechen
+            </Button>
+            <Button onClick={handleSave}>Speichern</Button>
           </div>
         </DialogContent>
       </Dialog>
