@@ -26,6 +26,7 @@ import { EditorToolbar } from "@/components/editor/EditorToolbar";
 import { GridItem } from "@/components/editor/GridItem";
 import { EditableText } from "@/components/editor/EditableText";
 import { EditableImage } from "@/components/editor/EditableImage";
+import { EditableImageWithUpload } from "@/components/editor/EditableImageWithUpload";
 import { EditableAlbumCard } from "@/components/editor/EditableAlbumCard";
 import { EditableTestimonialCard } from "@/components/editor/EditableTestimonialCard";
 import { AddItemButton } from "@/components/editor/AddItemButton";
@@ -63,6 +64,100 @@ const createInitialGrid = (
   projects: Project[],
   testimonials: Testimonial[]
 ): GridElement[] => {
+  // Check if we have saved grid layout
+  const savedLayoutStr = content?.visual_editor?.grid_layout?.de;
+  if (savedLayoutStr) {
+    try {
+      const savedLayout = JSON.parse(savedLayoutStr) as Array<{
+        id: string;
+        type: GridElementType;
+        colSpan?: 1 | 2 | 3;
+      }>;
+      
+      const elements: GridElement[] = [];
+      
+      for (const layoutItem of savedLayout) {
+        if (layoutItem.type === "project") {
+          const projectId = layoutItem.id.replace("project-", "");
+          const project = projects.find((p) => p.id === projectId);
+          if (project) {
+            elements.push({
+              id: layoutItem.id,
+              type: "project",
+              content: project.title,
+              colSpan: layoutItem.colSpan || 1,
+              data: project,
+            });
+          }
+        } else if (layoutItem.type === "testimonial") {
+          const testimonialId = layoutItem.id.replace("testimonial-", "");
+          const testimonial = testimonials.find((t) => t.id === testimonialId);
+          if (testimonial) {
+            elements.push({
+              id: layoutItem.id,
+              type: "testimonial",
+              content: testimonial.quote,
+              colSpan: layoutItem.colSpan || 1,
+              data: testimonial,
+            });
+          }
+        } else if (layoutItem.type === "contact-section") {
+          elements.push({
+            id: layoutItem.id,
+            type: "contact-section",
+            content: "",
+            colSpan: 3,
+          });
+        } else if (layoutItem.type === "spacer") {
+          elements.push({
+            id: layoutItem.id,
+            type: "spacer",
+            content: "",
+            colSpan: layoutItem.colSpan || 3,
+          });
+        } else {
+          // Load content element (heading, subheading, text, image)
+          const savedContentStr = content?.visual_editor?.[layoutItem.id]?.de;
+          if (savedContentStr) {
+            try {
+              const savedContent = JSON.parse(savedContentStr);
+              elements.push({
+                id: layoutItem.id,
+                type: savedContent.type || layoutItem.type,
+                content: savedContent.content || "",
+                colSpan: savedContent.colSpan || layoutItem.colSpan || 1,
+                textColor: savedContent.textColor,
+                bgColor: savedContent.bgColor,
+              });
+            } catch {
+              // Fallback: use layout info only
+              elements.push({
+                id: layoutItem.id,
+                type: layoutItem.type,
+                content: "",
+                colSpan: layoutItem.colSpan || 1,
+              });
+            }
+          } else {
+            elements.push({
+              id: layoutItem.id,
+              type: layoutItem.type,
+              content: "",
+              colSpan: layoutItem.colSpan || 1,
+            });
+          }
+        }
+      }
+      
+      if (elements.length > 0) {
+        return elements;
+      }
+    } catch (e) {
+      console.error("Failed to parse saved grid layout:", e);
+    }
+  }
+
+  // Fallback: Create default grid
   const elements: GridElement[] = [];
   let order = 0;
 
@@ -298,7 +393,7 @@ const VisualEditorContent: React.FC = () => {
       for (let i = 0; i < projectElements.length; i++) {
         const project = projectElements[i].data as Project;
         if (project.id.startsWith("new-")) {
-          await supabase.from("projects").insert({
+          const { data } = await supabase.from("projects").insert({
             title: project.title,
             description: project.description,
             image_url: project.image_url,
@@ -306,7 +401,13 @@ const VisualEditorContent: React.FC = () => {
             display_order: i,
             language: "de",
             is_published: true,
-          });
+          }).select().single();
+          
+          // Update the element with the new ID
+          if (data) {
+            projectElements[i].data = { ...project, id: data.id };
+            projectElements[i].id = `project-${data.id}`;
+          }
         } else {
           await supabase.from("projects").update({
             title: project.title,
@@ -323,47 +424,93 @@ const VisualEditorContent: React.FC = () => {
       for (let i = 0; i < testimonialElements.length; i++) {
         const testimonial = testimonialElements[i].data as Testimonial;
         if (testimonial.id.startsWith("new-")) {
-          await supabase.from("testimonials").insert({
+          const { data } = await supabase.from("testimonials").insert({
             name: testimonial.name,
             company: testimonial.company,
             quote: testimonial.quote,
+            avatar_url: testimonial.avatar_url,
             display_order: i,
             language: "de",
             is_published: true,
-          });
+          }).select().single();
+          
+          // Update the element with the new ID
+          if (data) {
+            testimonialElements[i].data = { ...testimonial, id: data.id };
+            testimonialElements[i].id = `testimonial-${data.id}`;
+          }
         } else {
           await supabase.from("testimonials").update({
             name: testimonial.name,
             company: testimonial.company,
             quote: testimonial.quote,
+            avatar_url: testimonial.avatar_url,
             display_order: i,
           }).eq("id", testimonial.id);
         }
       }
 
-      // Save content from headings/text
-      const contentMap: Record<string, Record<string, string>> = {};
-      gridElements.forEach((el, index) => {
-        if (el.type === "heading" && index === 0) {
-          if (!contentMap.hero) contentMap.hero = {};
-          contentMap.hero.headline = el.content;
-        }
-        if (el.type === "subheading" && index === 1) {
-          if (!contentMap.hero) contentMap.hero = {};
-          contentMap.hero.subheadline = el.content;
-        }
-      });
-
-      for (const [section, keys] of Object.entries(contentMap)) {
-        for (const [key, value] of Object.entries(keys)) {
-          await supabase.from("site_content").upsert({
-            section,
-            key,
-            value_de: value,
-            value_en: value,
-          }, { onConflict: "section,key" });
-        }
+      // Save all content elements (headings, subheadings, text) with their colors
+      const contentElements = gridElements.filter(
+        (e) => ["heading", "subheading", "text"].includes(e.type)
+      );
+      
+      // Save to site_content with unique keys based on element ID
+      for (const el of contentElements) {
+        await supabase.from("site_content").upsert({
+          section: "visual_editor",
+          key: el.id,
+          value_de: JSON.stringify({
+            content: el.content,
+            type: el.type,
+            colSpan: el.colSpan,
+            textColor: el.textColor,
+            bgColor: el.bgColor,
+          }),
+          value_en: JSON.stringify({
+            content: el.content,
+            type: el.type,
+            colSpan: el.colSpan,
+            textColor: el.textColor,
+            bgColor: el.bgColor,
+          }),
+        }, { onConflict: "section,key" });
       }
+      
+      // Save image elements
+      const imageElements = gridElements.filter((e) => e.type === "image");
+      for (const el of imageElements) {
+        await supabase.from("site_content").upsert({
+          section: "visual_editor",
+          key: el.id,
+          value_de: JSON.stringify({
+            content: el.content,
+            type: el.type,
+            colSpan: el.colSpan,
+            bgColor: el.bgColor,
+          }),
+          value_en: JSON.stringify({
+            content: el.content,
+            type: el.type,
+            colSpan: el.colSpan,
+            bgColor: el.bgColor,
+          }),
+        }, { onConflict: "section,key" });
+      }
+
+      // Save grid layout (element order and spacers)
+      const layoutData = gridElements.map((el) => ({
+        id: el.id,
+        type: el.type,
+        colSpan: el.colSpan,
+      }));
+      
+      await supabase.from("site_content").upsert({
+        section: "visual_editor",
+        key: "grid_layout",
+        value_de: JSON.stringify(layoutData),
+        value_en: JSON.stringify(layoutData),
+      }, { onConflict: "section,key" });
     },
     onMutate: () => setIsSaving(true),
     onSuccess: () => {
@@ -395,7 +542,7 @@ const VisualEditorContent: React.FC = () => {
     );
   }
 
-  const renderElement = (element: GridElement) => {
+const renderElement = (element: GridElement) => {
     switch (element.type) {
       case "heading":
         return (
@@ -404,6 +551,7 @@ const VisualEditorContent: React.FC = () => {
             onChange={(value) => updateElement(element.id, { content: value })}
             as="h2"
             className="text-3xl md:text-4xl lg:text-5xl font-display font-semibold text-center"
+            textColor={element.textColor}
           />
         );
       case "subheading":
@@ -413,6 +561,7 @@ const VisualEditorContent: React.FC = () => {
             onChange={(value) => updateElement(element.id, { content: value })}
             as="p"
             className="text-lg text-muted-foreground text-center"
+            textColor={element.textColor}
           />
         );
       case "text":
@@ -423,11 +572,12 @@ const VisualEditorContent: React.FC = () => {
             as="p"
             multiline
             className="text-muted-foreground leading-relaxed"
+            textColor={element.textColor}
           />
         );
       case "image":
         return (
-          <EditableImage
+          <EditableImageWithUpload
             src={element.content}
             alt="Grid Image"
             onChange={(url) => updateElement(element.id, { content: url })}

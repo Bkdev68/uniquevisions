@@ -10,6 +10,7 @@ interface EditableTextProps {
   className?: string;
   placeholder?: string;
   multiline?: boolean;
+  textColor?: string;
 }
 
 export const EditableText: React.FC<EditableTextProps> = ({
@@ -19,6 +20,7 @@ export const EditableText: React.FC<EditableTextProps> = ({
   className,
   placeholder = "Text eingeben...",
   multiline = false,
+  textColor,
 }) => {
   const { isEditMode } = useEditContext();
   const [isEditing, setIsEditing] = useState(false);
@@ -55,7 +57,14 @@ export const EditableText: React.FC<EditableTextProps> = ({
   };
 
   if (!isEditMode) {
-    return <Component className={className}>{value || placeholder}</Component>;
+    return (
+      <Component 
+        className={className}
+        style={{ color: textColor && textColor !== "transparent" ? textColor : undefined }}
+      >
+        {value || placeholder}
+      </Component>
+    );
   }
 
   if (isEditing) {
@@ -87,6 +96,7 @@ export const EditableText: React.FC<EditableTextProps> = ({
           className,
           "group-hover:bg-primary/10 rounded px-1 -mx-1 transition-colors"
         )}
+        style={{ color: textColor && textColor !== "transparent" ? textColor : undefined }}
       >
         {value || <span className="text-muted-foreground italic">{placeholder}</span>}
       </Component>
