@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import { useEditContext } from "@/contexts/EditContext";
 import { motion } from "framer-motion";
 import { Pencil, Trash2, GripVertical, Images, Plus, X } from "lucide-react";
@@ -11,8 +11,104 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 import { ImageUploader } from "./ImageUploader";
 import type { Project, GalleryImage } from "@/hooks/useContent";
+import { cn } from "@/lib/utils";
+
+// Sortable Gallery Item Component
+interface SortableGalleryItemProps {
+  id: string;
+  index: number;
+  image: GalleryImage;
+  onUpdate: (field: keyof GalleryImage, value: string) => void;
+  onRemove: () => void;
+}
+
+const SortableGalleryItem: React.FC<SortableGalleryItemProps> = ({
+  id,
+  index,
+  image,
+  onUpdate,
+  onRemove,
+}) => {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  };
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className={cn(
+        "p-3 bg-muted/50 rounded-lg space-y-3 border-2 border-transparent",
+        isDragging && "opacity-50 border-primary z-50"
+      )}
+    >
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <div
+            {...attributes}
+            {...listeners}
+            className="cursor-grab active:cursor-grabbing p-1 hover:bg-muted rounded"
+          >
+            <GripVertical className="w-4 h-4 text-muted-foreground" />
+          </div>
+          <span className="text-sm font-medium">Bild {index + 1}</span>
+        </div>
+        <Button
+          size="icon"
+          variant="ghost"
+          onClick={onRemove}
+          className="h-8 w-8"
+        >
+          <X className="w-4 h-4 text-destructive" />
+        </Button>
+      </div>
+      
+      <ImageUploader
+        currentUrl={image.url}
+        onImageChange={(url) => onUpdate("url", url)}
+        folder="gallery"
+        aspectRatio="16/9"
+        placeholder="Galerie-Bild hochladen"
+      />
+      
+      <Input
+        value={image.caption || ""}
+        onChange={(e) => onUpdate("caption", e.target.value)}
+        placeholder="Bildunterschrift (optional)"
+        className="text-sm"
+      />
+    </div>
+  );
+};
 
 interface EditableAlbumCardProps {
   project: Project;
@@ -29,6 +125,21 @@ export const EditableAlbumCard: React.FC<EditableAlbumCardProps> = ({
   const [isEditing, setIsEditing] = useState(false);
   const [localProject, setLocalProject] = useState(project);
 
+  // DnD sensors
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 5,
+      },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+
+  // Generate unique IDs for gallery items
+  const galleryItemIds = localProject.gallery.map((_, index) => `gallery-${index}`);
+
   const handleSave = () => {
     onUpdate(localProject);
     setIsEditing(false);
@@ -41,16 +152,36 @@ export const EditableAlbumCard: React.FC<EditableAlbumCardProps> = ({
     });
   };
 
-  const updateGalleryImage = (index: number, field: keyof GalleryImage, value: string) => {
-    const updated = [...localProject.gallery];
-    updated[index] = { ...updated[index], [field]: value };
-    setLocalProject({ ...localProject, gallery: updated });
-  };
+  const updateGalleryImage = useCallback((index: number, field: keyof GalleryImage, value: string) => {
+    setLocalProject((prev) => {
+      const updated = [...prev.gallery];
+      updated[index] = { ...updated[index], [field]: value };
+      return { ...prev, gallery: updated };
+    });
+  }, []);
 
-  const removeGalleryImage = (index: number) => {
-    const updated = localProject.gallery.filter((_, i) => i !== index);
-    setLocalProject({ ...localProject, gallery: updated });
-  };
+  const removeGalleryImage = useCallback((index: number) => {
+    setLocalProject((prev) => ({
+      ...prev,
+      gallery: prev.gallery.filter((_, i) => i !== index),
+    }));
+  }, []);
+
+  const handleDragEnd = useCallback((event: DragEndEvent) => {
+    const { active, over } = event;
+    
+    if (over && active.id !== over.id) {
+      setLocalProject((prev) => {
+        const oldIndex = galleryItemIds.indexOf(active.id as string);
+        const newIndex = galleryItemIds.indexOf(over.id as string);
+        
+        return {
+          ...prev,
+          gallery: arrayMove(prev.gallery, oldIndex, newIndex),
+        };
+      });
+    }
+  }, [galleryItemIds]);
 
   if (!isEditMode) {
     return (
@@ -187,49 +318,47 @@ export const EditableAlbumCard: React.FC<EditableAlbumCardProps> = ({
               />
             </div>
 
-            {/* Gallery Images */}
+            {/* Gallery Images with Drag and Drop */}
             <div>
               <div className="flex items-center justify-between mb-3">
-                <label className="text-sm font-medium">Galerie-Bilder ({localProject.gallery.length})</label>
+                <label className="text-sm font-medium">
+                  Galerie-Bilder ({localProject.gallery.length})
+                  {localProject.gallery.length > 1 && (
+                    <span className="text-muted-foreground ml-2 font-normal">
+                      – Zum Sortieren ziehen
+                    </span>
+                  )}
+                </label>
                 <Button size="sm" variant="outline" onClick={addGalleryImage}>
                   <Plus className="w-4 h-4 mr-1" />
                   Bild hinzufügen
                 </Button>
               </div>
               
-              <div className="space-y-4 max-h-96 overflow-y-auto">
-                {localProject.gallery.map((image, index) => (
-                  <div key={index} className="p-3 bg-muted/50 rounded-lg space-y-3">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm font-medium">Bild {index + 1}</span>
-                      <Button
-                        size="icon"
-                        variant="ghost"
-                        onClick={() => removeGalleryImage(index)}
-                        className="h-8 w-8"
-                      >
-                        <X className="w-4 h-4 text-destructive" />
-                      </Button>
-                    </div>
-                    
-                    <ImageUploader
-                      currentUrl={image.url}
-                      onImageChange={(url) => updateGalleryImage(index, "url", url)}
-                      folder="gallery"
-                      aspectRatio="16/9"
-                      placeholder="Galerie-Bild hochladen"
-                    />
-                    
-                    <Input
-                      value={image.caption || ""}
-                      onChange={(e) => updateGalleryImage(index, "caption", e.target.value)}
-                      placeholder="Bildunterschrift (optional)"
-                      className="text-sm"
-                    />
-                  </div>
-                ))}
-                
-                {localProject.gallery.length === 0 && (
+              <div className="space-y-3 max-h-96 overflow-y-auto pr-1">
+                {localProject.gallery.length > 0 ? (
+                  <DndContext
+                    sensors={sensors}
+                    collisionDetection={closestCenter}
+                    onDragEnd={handleDragEnd}
+                  >
+                    <SortableContext
+                      items={galleryItemIds}
+                      strategy={verticalListSortingStrategy}
+                    >
+                      {localProject.gallery.map((image, index) => (
+                        <SortableGalleryItem
+                          key={galleryItemIds[index]}
+                          id={galleryItemIds[index]}
+                          index={index}
+                          image={image}
+                          onUpdate={(field, value) => updateGalleryImage(index, field, value)}
+                          onRemove={() => removeGalleryImage(index)}
+                        />
+                      ))}
+                    </SortableContext>
+                  </DndContext>
+                ) : (
                   <div className="text-center py-8 text-muted-foreground border-2 border-dashed border-muted rounded-lg">
                     <Images className="w-8 h-8 mx-auto mb-2 opacity-50" />
                     Noch keine Bilder in diesem Album
